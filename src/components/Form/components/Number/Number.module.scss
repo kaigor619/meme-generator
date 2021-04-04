@@ -1,0 +1,23 @@
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fieldIcon {
+  margin-right: 20px;
+  & > img {
+    width: 25px;
+    height: auto;
+  }
+}
+
+.fieldInput {
+  max-width: 70px;
+  width: 100%;
+}
+
+.fieldFull {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}

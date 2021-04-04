@@ -1,0 +1,48 @@
+.color {
+  display: flex;
+  align-items: center;
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+.colorField {
+  display: flex;
+  overflow: hidden;
+  border-radius: 3px;
+}
+
+.colorPicker {
+  width: 30px;
+  background-color: #000aff;
+  flex: 1 0 30px;
+}
+
+.colorLabel {
+  flex: 1 1 100%;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #dadada;
+  padding: 5px 7px;
+
+  & > span {
+    font-size: 16px;
+    color: #4f4f4f;
+  }
+}
+.colorOpacity {
+  flex: 1 1 100%;
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #dadada;
+  padding: 5px 8px;
+
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+
+  & > span {
+    font-size: 16px;
+    color: #4f4f4f;
+  }
+}

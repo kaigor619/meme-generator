@@ -1,0 +1,56 @@
+.smile_icon {
+  max-width: 56px;
+  margin-right: 20px;
+}
+.title_icon {
+  max-width: 500px;
+  width: 100%;
+}
+.header_description {
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.76);
+}
+.header_btn_group {
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 50px;
+  & > span {
+    display: block;
+    margin: 15px auto;
+    font-size: 16px;
+    text-align: center;
+    letter-spacing: 0.02em;
+    color: #727272;
+  }
+  & > button {
+    border: none;
+    margin: 0 auto;
+  }
+}
+.btn-upload {
+  background: #5096ff;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
+  border-radius: 11px;
+  padding: 20px 70px;
+  color: white;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: white;
+  }
+  & > span {
+    margin-left: 36px;
+    font-size: 24px;
+  }
+}
+
+.btn-choose {
+  background: rgba(56, 62, 69, 0.67);
+  border-radius: 11px;
+  padding: 12px 30px;
+  color: white;
+  & > span {
+    font-size: 18px;
+  }
+}

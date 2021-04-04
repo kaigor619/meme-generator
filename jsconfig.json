@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src/",
+    "esModuleInterop": true,
+    "lib": ["es6", "dom"]
+  },
+  "include": ["src/**/*"]
+}

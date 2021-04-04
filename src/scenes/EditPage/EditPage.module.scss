@@ -1,0 +1,28 @@
+.editPage {
+  background-color: #dadada;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.editRow {
+  display: flex;
+  flex: 1 1 100%;
+}
+
+.canvasWrapper {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolsBarWrapper {
+  flex: 1 1 65px;
+}
+
+.sidebarWrapper {
+  flex: 1 0 280px;
+  max-width: 280px;
+}
