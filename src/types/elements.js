@@ -3,7 +3,7 @@ import { ELEMENT_TYPE } from "types/constant";
 export const TEXT_OPTIONS_TEMPLATE = {
   type: ELEMENT_TYPE.text,
   style: {
-    text: "Text",
+    text: "Sample Text",
     fontFamily: "Impact",
     fontStyle: "bold",
     align: "left",
