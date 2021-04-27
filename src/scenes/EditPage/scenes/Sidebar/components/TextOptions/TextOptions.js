@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Number,
   Select,
@@ -8,74 +8,140 @@ import {
 } from "components/Form";
 import SidebarSection from "components/SidebarSection";
 import { Form } from "react-bootstrap";
+import { connect } from "react-redux";
+import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
+import { handleUpdateElement } from "reducers";
+import helper from "utils/helpers";
+import { FONTS } from "types/fonts";
 
 import fontSizeIcon from "assets/images/font-size.svg";
 import lineHeightIcon from "assets/images/line-height.svg";
-import alignLeftIcon from "assets/images/align-left.svg";
-import alignCenterIcon from "assets/images/align-center.svg";
-import alignRightIcon from "assets/images/align-right.svg";
+
+import { textAlignOptions, textStyleOptions, fontStyleOptions } from "./data";
 
 import classes from "./TextOptions.module.scss";
 
-const TextOptions = () => {
-  const textStyleOptions = useMemo(
-    () => [
-      {
-        name: "underline",
-        value: <span className={classes.textStyleUnderline}>T</span>,
-      },
-      {
-        name: "bold",
-        value: <span className={classes.textStyleBold}>B</span>,
-      },
-      {
-        name: "italic",
-        value: <span className={classes.textStyleItalic}>I</span>,
-      },
-    ],
-    [classes]
-  );
-  const textAlignOptions = useMemo(
-    () => [
-      {
-        name: "left",
-        value: <img src={alignLeftIcon} alt="" />,
-      },
-      {
-        name: "center",
-        value: <img src={alignCenterIcon} alt="" />,
-      },
-      {
-        name: "right",
-        value: <img src={alignRightIcon} alt="" />,
-      },
-    ],
-    [classes]
-  );
+const TextOptions = ({ activeId, elements, handleUpdateElement }) => {
+  const [textStyle, setTextStyle] = useState(null);
+
+  useEffect(() => {
+    if (activeId && elements) {
+      const element = elements.find((item) => item.id === activeId);
+      element && setTextStyle(element);
+    }
+  }, [activeId, elements.length]);
+
+  const onChangeStyle = ({ target: { name, value } }) => {
+    const modifiedValue = helper.filterStyleValue(name, value);
+
+    const updatedElement = {
+      ...textStyle,
+      style: { ...textStyle.style, [name]: modifiedValue },
+    };
+
+    setTextStyle(updatedElement);
+    handleUpdateElement(updatedElement.id, updatedElement);
+  };
+  const onChangeText = ({ target }) => {
+    const updatedElement = { ...textStyle, text: target.value };
+
+    setTextStyle(updatedElement);
+    handleUpdateElement(updatedElement.id, updatedElement);
+  };
+
+  const handleChangeFontFamily = ({ value, label, url }) => {
+    const head = document.querySelector("head");
+    const links = document.querySelectorAll("link[data-font]");
+
+    const is = [...links].some(
+      (node) => node.getAttribute("data-font") === value
+    );
+
+    if (!is) {
+      const link = document.createElement("link");
+      link.setAttribute("data-font", value);
+      link.rel = "stylesheet";
+      link.href = url;
+      head.appendChild(link);
+      link.onload = () => {
+        onChangeStyle({ target: { name: "fontFamily", value: label } });
+      };
+    } else {
+      onChangeStyle({ target: { name: "fontFamily", value: label } });
+    }
+  };
+
+  if (!textStyle) return null;
 
   return (
     <>
       <SidebarSection title="Text">
-        <Form.Control type="text" value="This is text" />
+        <Form.Control
+          name="text"
+          as="textarea"
+          rows={2}
+          onChange={onChangeStyle}
+          value={textStyle.style.text || ""}
+        />
       </SidebarSection>
       <SidebarSection title="Font">
         <div className={classes.sectionGrid}>
-          <Select className={classes.fullRow} />
-          <Number icon={fontSizeIcon} value="1" />
-          <Number icon={lineHeightIcon} value="1" />
-
-          <ButtonsCheck options={textStyleOptions} />
-          <ButtonsSwitch options={textAlignOptions} />
+          <Select
+            options={fontStyleOptions}
+            defaultValue={fontStyleOptions.find(
+              (x) => x.label === textStyle.style.fontFamily
+            )}
+            className={classes.fullRow}
+            onChange={handleChangeFontFamily}
+          />
+          <Number
+            name="fontSize"
+            icon={fontSizeIcon}
+            value={textStyle.style?.fontSize || ""}
+            onChange={onChangeStyle}
+          />
+          <Number
+            name="lineHeight"
+            icon={lineHeightIcon}
+            value={textStyle.style?.lineHeight || ""}
+            onChange={onChangeStyle}
+          />
+          <ButtonsCheck
+            activeId={activeId}
+            textStyle={textStyle.style}
+            onChange={onChangeStyle}
+            options={textStyleOptions}
+          />
+          <ButtonsSwitch
+            name="align"
+            value={textStyle.style.align}
+            options={textAlignOptions}
+            onChange={onChangeStyle}
+          />
         </div>
       </SidebarSection>
 
       <SidebarSection title="Fill">
         <div className={classes.sectionGrid}>
-          <Color value="A78B28" />
+          <Color
+            name="fill"
+            value={textStyle.style.fill}
+            className={classes.fullRow}
+            onChange={onChangeStyle}
+          />
         </div>
       </SidebarSection>
     </>
   );
 };
 
-export default TextOptions;
+const mapStateToProps = (state) => ({
+  activeId: state.activeId,
+  elements: state.elements,
+});
+
+const mapDispatch = {
+  handleUpdateElement,
+};
+
+export default connect(mapStateToProps, mapDispatch)(TextOptions);

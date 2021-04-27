@@ -4,14 +4,13 @@ import cls from "classnames";
 
 import classes from "./Select.module.scss";
 
-const options = [
-  { value: "chocolate", label: "Chocolate" },
-  { value: "strawberry", label: "Strawberry" },
-  { value: "vanilla", label: "Vanilla" },
-];
-
-const CustomSelect = ({ className }) => (
-  <Select className={cls(classes.select, className)} options={options} />
+const CustomSelect = ({ options, className, defaultValue, onChange }) => (
+  <Select
+    className={cls(classes.select, className)}
+    options={options}
+    defaultValue={defaultValue}
+    onChange={onChange}
+  />
 );
 
 export default CustomSelect;

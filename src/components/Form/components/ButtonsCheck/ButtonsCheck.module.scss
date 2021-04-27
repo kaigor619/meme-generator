@@ -12,18 +12,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #fff;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
 
-  & > span {
-    font-size: 18px;
-
-    &.underline {
-      text-decoration: underline;
-    }
-    &.bold {
-      font-weight: bold;
-    }
-    &.italic {
-      font-style: italic;
-    }
-  }
+.activeItem {
+  background-color: #e8e5e5;
 }

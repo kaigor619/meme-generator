@@ -3,29 +3,45 @@ import { Form } from "react-bootstrap";
 import classes from "./Number.module.scss";
 import PropTypes from "prop-types";
 
-const Number = ({ value, icon }) => {
+const Number = ({
+  name,
+  value,
+  icon,
+  label,
+  onChange,
+  className,
+  ...other
+}) => {
   return (
     <div className={classes.field}>
-      {icon && (
-        <div className={classes.fieldIcon}>
-          <img src={icon} alt="Font size" />
-        </div>
-      )}
+      <label htmlFor={name} className={classes.fieldLabel}>
+        {icon ? <img src={icon} /> : (label && <span>{label}</span>) || null}
+      </label>
       <div className={classes.fieldInput}>
-        <Form.Control type="number" value={value} />
+        <Form.Control
+          name={name}
+          id={name}
+          onChange={onChange}
+          type="number"
+          value={value}
+          className={className}
+          {...other}
+        />
       </div>
     </div>
   );
 };
 
 Number.propTypes = {
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  label: PropTypes.string,
   icon: PropTypes.string,
 };
 
-Number.propTypes = {
+Number.defaultProps = {
   value: "",
   icon: "",
+  label: "",
 };
 
 export default Number;

@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://unpkg.com/konva@7.2.4/konva.min.js"></script>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/konva@7.2.5/konva.min.js"></script>
+    <meta charset="utf-8" />
     <title>Konva Editable Text on html5 canvas Demo</title>
     <style>
       body {
@@ -41,7 +39,18 @@
 
       layer.add(textNode);
 
+      var tr = new Konva.Transformer({
+        node: textNode,
+        enabledAnchors: ["middle-left", "middle-right"],
+        // set minimum width of text
+        // boundBoxFunc: function (oldBox, newBox) {
+        //   newBox.width = Math.max(30, newBox.width);
+        //   return newBox;
+        // },
+      });
+
       textNode.on("transform", function () {
+        console.log("transform");
         // reset scale, so only with is changing by transformer
         textNode.setAttrs({
           width: textNode.width() * textNode.scaleX(),
@@ -49,11 +58,14 @@
         });
       });
 
+      layer.add(tr);
+
       layer.draw();
 
       textNode.on("dblclick dbltap", () => {
         // hide text node and transformer:
         textNode.hide();
+        tr.hide();
         layer.draw();
 
         // create textarea over canvas with absolute position
@@ -125,8 +137,8 @@
           textarea.parentNode.removeChild(textarea);
           window.removeEventListener("click", handleOutsideClick);
           textNode.show();
-          //   tr.show();
-          //   tr.forceUpdate();
+          tr.show();
+          tr.forceUpdate();
           layer.draw();
         }
 

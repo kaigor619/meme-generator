@@ -3,7 +3,6 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import EditPage from "scenes/EditPage";
 import paths from "types/paths";
 
-import "assets/scss/fonts.scss";
 import "./App.scss";
 
 function App() {

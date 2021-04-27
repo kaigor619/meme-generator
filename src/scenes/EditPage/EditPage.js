@@ -14,9 +14,7 @@ const Edit = () => {
         <div className={classes.toolsBarWrapper}>
           <ToolsBar />
         </div>
-        <div className={classes.canvasWrapper}>
-          <Canvas />
-        </div>
+        <Canvas />
         <div className={classes.sidebarWrapper}>
           <Sidebar />
         </div>

@@ -11,6 +11,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #fff;
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  .active {
+    background-color: #e3e0e0;
+  }
 
   & > img {
     width: 16px;
@@ -25,4 +32,12 @@
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
   }
+
+  &:hover {
+    background-color: #f8f8f8;
+  }
+}
+
+.activeItem {
+  background-color: #e8e5e5;
 }

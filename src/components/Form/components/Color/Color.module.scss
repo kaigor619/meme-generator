@@ -1,3 +1,14 @@
+.colorWrapper {
+  position: relative;
+}
+
+.colorPickerWrapper {
+  position: absolute;
+  top: 0;
+  left: -15px;
+  transform: translate(-100%, -40%);
+}
+
 .color {
   display: flex;
   align-items: center;
@@ -6,15 +17,20 @@
 }
 
 .colorField {
+  width: 100%;
   display: flex;
   overflow: hidden;
   border-radius: 3px;
 }
 
 .colorPicker {
-  width: 30px;
-  background-color: #000aff;
-  flex: 1 0 30px;
+  width: 40px;
+  flex: 1 0 40px;
+  cursor: pointer;
+  border: 1px solid #dadada;
+  border-right: none;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
 
 .colorLabel {
@@ -23,11 +39,14 @@
   display: flex;
   align-items: center;
   border: 1px solid #dadada;
-  padding: 5px 7px;
 
-  & > span {
+  & > input {
     font-size: 16px;
     color: #4f4f4f;
+    padding: 8px 10px;
+    border: none;
+    height: 100%;
+    width: 100%;
   }
 }
 .colorOpacity {

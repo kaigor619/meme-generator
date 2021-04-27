@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { connect } from "react-redux";
-import { handleAddElement } from "reducers";
+import { handleAddElement, handleChangeActiveElement } from "reducers";
 import classes from "./ToolsBar.module.scss";
 
 import textIcon from "./images/text.svg";
@@ -17,7 +17,7 @@ const ToolBarItem = ({ label, icon, action }) => (
   </li>
 );
 
-const ToolsBar = ({ handleAddElement }) => {
+const ToolsBar = ({ handleAddElement, handleChangeActiveElement }) => {
   const toolBarList = useMemo(
     () => [
       {
@@ -45,10 +45,14 @@ const ToolsBar = ({ handleAddElement }) => {
   );
 
   return (
-    <div className={classes.toolsBar}>
-      <ul className={classes.toolsBarList}>
+    <div
+      className={classes.toolsBar}
+      onClick={() => handleChangeActiveElement("")}
+    >
+      <ul className={classes.toolsBarList} onClick={(e) => e.stopPropagation()}>
         {toolBarList.map((item) => (
           <ToolBarItem
+            key={item.label}
             icon={item.icon}
             label={item.label}
             action={item.action}
@@ -61,6 +65,7 @@ const ToolsBar = ({ handleAddElement }) => {
 
 const mapDispatch = {
   handleAddElement,
+  handleChangeActiveElement,
 };
 
 export default connect(null, mapDispatch)(ToolsBar);

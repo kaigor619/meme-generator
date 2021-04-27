@@ -1,0 +1,3 @@
+export const MODAL_NAMES = {
+  ADD_BACKGROUND: "ADD_BACKGROUND",
+};

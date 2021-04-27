@@ -4,79 +4,86 @@ import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
 import canvasBackground from "assets/images/canvas-background.jpg";
 
 const types = {
+  CHANGE_ACTIVE_ELEMENT: "CHANGE_ACTIVE_ELEMENT",
   ADD_ELEMENT: "ADD_ELEMENT",
   DELETE_ELEMENT: "DELETE_ELEMENT",
   UPDATE_ELEMENT: "UPDATE_ELEMENT",
-};
-
-export const handleAddElement = () => {
-  return {
-    type: types.ADD_ELEMENT,
-    payload: TEXT_OPTIONS_TEMPLATE,
-  };
+  UPDATE_CANVAS: "UPDATE_CANVAS",
+  CHANGE_MODAL_ID: "CHANGE_MODAL_ID",
+  UPDATE_STAGE: "UPDATE_STAGE",
 };
 
 const initialState = {
+  activeId: "canvas",
+  stage: null,
+  modalId: "",
   canvas: {
-    container: "container",
+    id: "canvas",
+    container: "canvas",
     width: 500,
     height: 400,
+    fill: "#fff",
+    // backgroundImage: canvasBackground,
+    backgroundImage: "",
+    backgroundFile: null,
   },
-  elements: [
-    {
-      id: 1,
-      type: ELEMENT_TYPE.background,
-      src: canvasBackground,
-      x: 0,
-      y: 0,
-      width: 500,
-      height: 400,
-    },
-    // {
-    //   id: 1,
-    //   type: ELEMENT_TYPE.image,
-    //   src:
-    //     "https://i.pinimg.com/originals/7a/f3/03/7af3035dd777c2fa81b1bc862f5c5a90.png",
-    //   x: 0,
-    //   y: 0,
-    // },
-    // {
-    //   id: 2,
-    //   type: ELEMENT_TYPE.text,
-    //   text: "That's our secret",
-    //   style: {
-    //     fontFamily: "Impact",
-    //     fontWeight: "bold",
-    //     fontSize: 40,
-    //     fill: "#fff",
-    //     // stroke: "#000",
-    //     // strokeWidth: 1,
-    //     shadowColor: "#000",
-    //     shadowOffsetX: 0,
-    //     shadowOffsetY: 0,
-    //     shadowOpacity: 1,
-    //     shadowBlur: 10,
-    //   },
-    // },
-    // {
-    //   id: 3,
-    //   type: ELEMENT_TYPE.text,
-    //   text: "There is no plan",
-    //   style: {
-    //     fontFamily: "Impact",
-    //     fontWeight: "bold",
-    //     fontSize: 40,
-    //     fill: "#fff",
-    //     // stroke: "#000",
-    //     // strokeWidth: 1,
-    //     shadowColor: "#000",
-    //     shadowOffsetX: 0,
-    //     shadowOffsetY: 0,
-    //     shadowOpacity: 1,
-    //     shadowBlur: 10,
-    //   },
-    // },
-  ],
+  elements: [],
+};
+
+export const handleUpdateStage = (stage) => {
+  return {
+    type: types.UPDATE_STAGE,
+    data: stage,
+  };
+};
+
+export const handleChangeModalId = (id) => {
+  return {
+    type: types.CHANGE_MODAL_ID,
+    data: id,
+  };
+};
+
+export const handleChangeActiveElement = (id) => {
+  return {
+    type: types.CHANGE_ACTIVE_ELEMENT,
+    data: id,
+  };
+};
+
+export const handleAddElement = () => (dispatch) => {
+  const id = Date.now().toString();
+
+  dispatch({
+    type: types.ADD_ELEMENT,
+    data: { id, ...TEXT_OPTIONS_TEMPLATE },
+  });
+};
+
+export const handleUpdateStyleElement = (id, data) => (dispatch, getState) => {
+  const { elements } = getState();
+
+  const element = elements.find((item) => item.id === id);
+
+  if (!element) return;
+
+  dispatch({
+    type: types.UPDATE_ELEMENT,
+    data: { ...element, style: { ...element.style, ...data } },
+  });
+};
+
+export const handleUpdateElement = (id, data) => (dispatch, getState) => {
+  dispatch({
+    type: types.UPDATE_ELEMENT,
+    data: { id, ...data },
+  });
+};
+export const handleUpdateCanvas = (data) => (dispatch, getState) => {
+  dispatch({
+    type: types.UPDATE_CANVAS,
+    data: data,
+  });
 };
 
 const reducer = (state = initialState, action) => {
@@ -84,7 +91,7 @@ const reducer = (state = initialState, action) => {
     case types.ADD_ELEMENT: {
       return {
         ...state,
-        elements: [...state.elements, action.payload],
+        elements: [...state.elements, action.data],
       };
     }
     case types.DELETE_ELEMENT: {
@@ -97,9 +104,33 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         elements: [
-          state.elements.filter((item) => item.id !== action.payload.id),
-          action.payload,
+          ...state.elements.filter((item) => item.id !== action.data.id),
+          action.data,
         ],
+      };
+    }
+    case types.CHANGE_ACTIVE_ELEMENT: {
+      return {
+        ...state,
+        activeId: action.data,
+      };
+    }
+    case types.UPDATE_CANVAS: {
+      return {
+        ...state,
+        canvas: action.data,
+      };
+    }
+    case types.CHANGE_MODAL_ID: {
+      return {
+        ...state,
+        modalId: action.data,
+      };
+    }
+    case types.UPDATE_STAGE: {
+      return {
+        ...state,
+        stage: action.data,
       };
     }
 
