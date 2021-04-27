@@ -10,7 +10,7 @@ import {
 } from "reducers";
 import * as konvaService from "services/konva";
 import Konva from "konva";
-import helper from "utils/helpers";
+import * as helper from "utils/helpers";
 import canvasBackground from "assets/images/canvas-background.jpg";
 
 import "./Canvas.scss";

@@ -11,7 +11,7 @@ import { Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
 import { handleUpdateElement } from "reducers";
-import helper from "utils/helpers";
+import * as helper from "utils/helpers";
 import { FONTS } from "types/fonts";
 
 import fontSizeIcon from "assets/images/font-size.svg";

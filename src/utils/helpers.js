@@ -1,6 +1,6 @@
 import { STYLE_TYPES, CANVAS_CONFIG } from "types/elements";
 
-const comparisonStyle = (curr, next) => {
+export const comparisonStyle = (curr, next) => {
   let diffStyles = [],
     b = false;
 
@@ -12,7 +12,7 @@ const comparisonStyle = (curr, next) => {
   return diffStyles.length ? diffStyles : false;
 };
 
-const getCanvasConfig = (obj) => {
+export const getCanvasConfig = (obj) => {
   let config = Object.fromEntries(
     CANVAS_CONFIG.map((item) => [item, obj[item]])
   );
@@ -20,7 +20,7 @@ const getCanvasConfig = (obj) => {
   return config;
 };
 
-const getRestArray = (curr, next) => {
+export const getRestArray = (curr, next) => {
   const restElements =
     curr.length > next.length
       ? curr.filter((item) => !next.some((x) => x.id === item.id))
@@ -29,7 +29,7 @@ const getRestArray = (curr, next) => {
   return restElements;
 };
 
-const filterStyleValue = (name, value) => {
+export const filterStyleValue = (name, value) => {
   switch (STYLE_TYPES[name]) {
     case "number":
       return parseFloat(value);
@@ -42,13 +42,13 @@ const filterStyleValue = (name, value) => {
   }
 };
 
-const getBoxShadow = (style) => {
+export const getBoxShadow = (style) => {
   if (style.shadowEnabled) return "none";
   const { shadowOffsetX, shadowOffsetY, shadowBlur, shadowColor } = style;
   return `${shadowOffsetX} ${shadowOffsetY} ${shadowBlur} ${shadowColor}`;
 };
 
-function createEditableBlock(textNode) {
+export function createEditableBlock(textNode) {
   var textPosition = textNode.absolutePosition();
 
   const canvasCoords = this.canvasNode.getBoundingClientRect();
@@ -117,7 +117,7 @@ function createEditableBlock(textNode) {
   return textarea;
 }
 
-const getTextareaWidth = (newWidth, textNode) => {
+export const getTextareaWidth = (newWidth, textNode) => {
   if (!newWidth) {
     // set width for placeholder
     newWidth = textNode.placeholder.length * textNode.fontSize();
@@ -137,21 +137,10 @@ const getTextareaWidth = (newWidth, textNode) => {
   return newWidth;
 };
 
-const toggleCanvasEdit = (toggle) => {
+export const toggleCanvasEdit = (toggle) => {
   const editCircles = document.querySelectorAll(".editCircle");
 
   editCircles.forEach((item) => {
     item.style.display = toggle ? "block" : "none";
   });
-};
-
-export default {
-  comparisonStyle,
-  getRestArray,
-  filterStyleValue,
-  getBoxShadow,
-  createEditableBlock,
-  getTextareaWidth,
-  getCanvasConfig,
-  toggleCanvasEdit,
 };

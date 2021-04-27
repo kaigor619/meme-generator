@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { handleUpdateCanvas } from "reducers";
 import SidebarSection from "components/SidebarSection";
 import { Button } from "react-bootstrap";
-import helper from "utils/helpers";
+import * as helper from "utils/helpers";
 import AddBackground from "modals/AddBackground";
 import cls from "classnames";
 import closeIcon from "assets/images/close.svg";
