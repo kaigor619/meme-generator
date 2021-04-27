@@ -53,8 +53,6 @@
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "customize-cra": "^1.0.0",
     "node-sass": "^4.14.1",
-    "react-app-rewired": "^2.1.8",
     "redux-devtools-extension": "^2.13.9"
-  },
-  "proxy": "http://localhost:3001"
+  }
 }

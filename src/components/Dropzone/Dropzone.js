@@ -1,7 +1,4 @@
-/* eslint-disable no-restricted-syntax */
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import classNames from "classnames";
-import PropTypes from "prop-types";
+import React from "react";
 import { useDropzone } from "react-dropzone";
 import uploadIcon from "assets/images/upload.svg";
 import classes from "./Dropzone.module.scss";
@@ -11,7 +8,7 @@ const MyDropzone = ({ handleUpdateFiles }) => {
     handleUpdateFiles(acceptedFiles);
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
     <div {...getRootProps()}>
