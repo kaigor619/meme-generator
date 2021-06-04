@@ -3,6 +3,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .editRow {
@@ -24,4 +25,17 @@
 .sidebarWrapper {
   flex: 1 0 280px;
   max-width: 280px;
+}
+
+.spinnerWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  & > div {
+    width: 4rem;
+    height: 4rem;
+    border-width: 0.4rem;
+  }
 }

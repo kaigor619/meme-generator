@@ -7,6 +7,7 @@ import {
   handleChangeActiveElement,
   handleUpdateCanvas,
   handleUpdateStage,
+  handleUpdateElement,
 } from "reducers";
 import * as konvaService from "services/konva";
 import Konva from "konva";
@@ -54,9 +55,9 @@ class Canvas extends Component {
   }
 
   init = () => {
-    const { elements, canvas } = this.props;
+    const { elements, canvas, canvasOptions } = this.props;
 
-    const config = helper.getCanvasConfig(canvas);
+    const config = helper.getCanvasConfig({ ...canvas, ...canvasOptions });
 
     const stage = new Konva.Stage({ ...config });
     this.canvasNode = document.getElementById(canvas.container);
@@ -81,6 +82,7 @@ class Canvas extends Component {
         layer.add(yoda);
         layer.batchDraw();
       };
+      imageObj.crossOrigin = "Anonymous";
       imageObj.src = canvas.backgroundImage;
     } else {
       const imageObj = new Image();
@@ -290,6 +292,18 @@ class Canvas extends Component {
           }
           this.handleDeleteTransformerExcept(item.id);
         });
+        textNode.on("dragend", (e) => {
+          console.log("touchend");
+
+          const { x, y } = textNode.position();
+          console.log(x, y);
+
+          const updatedElement = this.props.elements.find(
+            (x) => x.id === this.props.activeId
+          );
+          updatedElement.style = { ...updatedElement.style, x, y };
+          this.props.handleUpdateElement(updatedElement.id, updatedElement);
+        });
 
         textNode.on("transform", function () {
           textNode.setAttrs({
@@ -323,6 +337,13 @@ class Canvas extends Component {
           const textarea = helper.createEditableBlock.call(this, textNode);
 
           textarea.focus();
+          textarea.oninput = (e) => {
+            const updatedElement = this.props.elements.find(
+              (x) => x.id === this.props.activeId
+            );
+            updatedElement.style.text = e.target.innerText;
+            this.props.handleUpdateElement(updatedElement.id, updatedElement);
+          };
 
           function removeTextarea() {
             textarea.parentNode.removeChild(textarea);
@@ -574,9 +595,10 @@ class Canvas extends Component {
   }
 }
 
-const mapStateToProps = ({ elements, canvas, activeId }) => ({
+const mapStateToProps = ({ elements, canvas, canvasOptions, activeId }) => ({
   elements,
   canvas,
+  canvasOptions,
   activeId,
 });
 
@@ -585,6 +607,7 @@ const mapDispatch = {
   handleChangeActiveElement,
   handleUpdateCanvas,
   handleUpdateStage,
+  handleUpdateElement,
 };
 
 export default connect(mapStateToProps, mapDispatch)(Canvas);

@@ -1,6 +1,6 @@
 body {
   font-family: "Arial", serif;
-  overflow: hidden;
+  // overflow: hidden;
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
@@ -8,4 +8,8 @@ body {
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
+}
+
+.modal-content {
+  border-radius: 30px;
 }

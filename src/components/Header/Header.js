@@ -1,52 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { handleChangeActiveElement } from "reducers";
+import { useHistory } from "react-router-dom";
+import axios from "axios";
+import store from "store";
 import "./Header.scss";
+import ExportModal from "modals/Export";
 
 import logo from "assets/images/logo.svg";
 import eye from "assets/images/eye.svg";
+import paths from "types/paths";
 
 const Header = () => {
   const dispatch = useDispatch();
+  const [isExport, setIsExport] = useState(false);
+  const history = useHistory();
   const stage = useSelector((state) => state.stage);
 
-  const exportImage = (e) => {
-    e.stopPropagation();
-
-    stage.toImage({
-      callback(img) {
-        console.log(img);
-        const link = document.createElement("a");
-        link.href = img.src;
-        link.download = "canvas-image.jpg";
-        document.body.append(link);
-        link.click();
-      },
-      mimeType: "image/jpeg",
-      quality: 1,
-    });
-
-    console.log(stage);
-  };
-
   return (
-    <header
-      className="header"
-      onClick={() => dispatch(handleChangeActiveElement(""))}
-    >
-      <div className="header_logo">
-        <img src={logo} alt="Logo" />
-      </div>
-      <div className="header_btns">
-        <button className="header_preview">
-          <img src={eye} alt="Eye" /> Preview
-        </button>
-        <button className="header_save">Save</button>
-        <button className="header_export" onClick={exportImage}>
-          Export
-        </button>
-      </div>
-    </header>
+    <>
+      <header
+        className="header"
+        onClick={() => dispatch(handleChangeActiveElement(""))}
+      >
+        <div className="header_logo" onClick={() => history.push(paths.main)}>
+          <img src={logo} alt="Logo" />
+        </div>
+        <div className="header_btns">
+          <button className="header_preview">
+            <img src={eye} alt="Eye" /> Preview
+          </button>
+          <button className="header_save">Save</button>
+          <button className="header_export" onClick={() => setIsExport(true)}>
+            Export
+          </button>
+        </div>
+      </header>
+
+      <ExportModal show={isExport} onHide={() => setIsExport(false)} />
+    </>
   );
 };
 

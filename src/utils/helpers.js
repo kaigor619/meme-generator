@@ -70,8 +70,8 @@ export function createEditableBlock(textNode) {
   textarea.style.position = "absolute";
   textarea.style.top = areaPosition.y + "px";
   textarea.style.left = areaPosition.x + "px";
-  textarea.style.width = textNode.width() - textNode.padding() * 2 + "px";
-  textarea.style.height = textNode.height() - textNode.padding() * 2 + "px";
+  // textarea.style.width = textNode.width() - textNode.padding() * 2 + "px";
+  // textarea.style.height = textNode.height() - textNode.padding() * 2 + "px";
   textarea.style.fontSize = textNode.fontSize() + "px";
   textarea.style.padding = "0px";
   textarea.style.margin = "0px";

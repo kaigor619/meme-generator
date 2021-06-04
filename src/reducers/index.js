@@ -3,7 +3,7 @@ import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
 
 import canvasBackground from "assets/images/canvas-background.jpg";
 
-const types = {
+export const types = {
   CHANGE_ACTIVE_ELEMENT: "CHANGE_ACTIVE_ELEMENT",
   ADD_ELEMENT: "ADD_ELEMENT",
   DELETE_ELEMENT: "DELETE_ELEMENT",
@@ -11,23 +11,39 @@ const types = {
   UPDATE_CANVAS: "UPDATE_CANVAS",
   CHANGE_MODAL_ID: "CHANGE_MODAL_ID",
   UPDATE_STAGE: "UPDATE_STAGE",
+  UPDATE_STATE: "UPDATE_STATE",
+  GET_BACKGROUNDS: "GET_BACKGROUNDS",
 };
 
 const initialState = {
   activeId: "canvas",
   stage: null,
   modalId: "",
-  canvas: {
+  isReadyCanvas: false,
+  canvasOptions: {
     id: "canvas",
     container: "canvas",
+    backgroundImage: "",
+    backgroundFile: null,
+  },
+  canvas: {
     width: 500,
     height: 400,
     fill: "#fff",
-    // backgroundImage: canvasBackground,
+    id: "canvas",
+    container: "canvas",
     backgroundImage: "",
     backgroundFile: null,
   },
   elements: [],
+  memeBackgrounds: [],
+};
+
+export const handleFillState = (obj) => {
+  return {
+    type: types.UPDATE_STATE,
+    data: obj,
+  };
 };
 
 export const handleUpdateStage = (stage) => {
@@ -131,6 +147,19 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         stage: action.data,
+      };
+    }
+    case types.UPDATE_STATE: {
+      return {
+        ...state,
+        ...action.data,
+        isReadyCanvas: true,
+      };
+    }
+    case types.GET_BACKGROUNDS: {
+      return {
+        ...state,
+        memeBackgrounds: action.data,
       };
     }
 

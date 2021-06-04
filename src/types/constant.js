@@ -4,3 +4,8 @@ export const ELEMENT_TYPE = {
   background: "background",
   canvas: "canvas",
 };
+
+export const BACKGROUND_TYPES = {
+  search: "memeSearch",
+  localFiles: "localFiles",
+};
