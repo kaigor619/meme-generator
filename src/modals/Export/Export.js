@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Modal from "components/Modal";
-import { useHistory } from "react-router-dom";
 import { Form, Button } from "react-bootstrap";
 import paths from "types/paths";
 import Dropzone from "components/Dropzone";
@@ -12,12 +11,14 @@ import { useDispatch, useSelector } from "react-redux";
 import store from "store";
 import downloadIcon from "assets/images/download1.svg";
 import { fetchCreateMeme } from "api/memesAPI";
+import { Spinner } from "react-bootstrap";
 
 import { BACKGROUND_TYPES } from "types/constant";
 
 const Export = ({ show, onHide }) => {
-  const history = useHistory();
   const [name, setName] = useState();
+  const [isRequestSave, setIsRequestSave] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const stage = useSelector((state) => state.stage);
 
   const handleSaveTemplate = async (e) => {
@@ -49,10 +50,12 @@ const Export = ({ show, onHide }) => {
       formData.append(key, reqData[key]);
     });
 
-    console.log("create meme");
-
+    setIsRequestSave(true);
     fetchCreateMeme(formData)
-      .then((res) => console.log(res))
+      .then((res) => {
+        setIsRequestSave(false);
+        setIsSaved(true);
+      })
       .catch((err) => console.log(err));
   };
 
@@ -64,6 +67,7 @@ const Export = ({ show, onHide }) => {
     downloadLink.href = dataURL;
     downloadLink.click();
     downloadLink.remove();
+    onHide();
   };
 
   return (
@@ -75,9 +79,20 @@ const Export = ({ show, onHide }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="meme name"
+          disabled={isRequestSave || isSaved}
         />
-        <button className={classes.saveTemplate} onClick={handleSaveTemplate}>
-          Save as template
+        <button
+          className={classes.saveTemplate}
+          onClick={handleSaveTemplate}
+          disabled={isRequestSave || isSaved}
+        >
+          {isRequestSave ? (
+            <Spinner animation="border" variant="light" />
+          ) : isSaved ? (
+            "Saved"
+          ) : (
+            "Save as template"
+          )}
         </button>
       </div>
 

@@ -13,6 +13,7 @@ export const types = {
   UPDATE_STAGE: "UPDATE_STAGE",
   UPDATE_STATE: "UPDATE_STATE",
   GET_BACKGROUNDS: "GET_BACKGROUNDS",
+  CLEAR_STATE: "CLEAR_STATE",
 };
 
 const initialState = {
@@ -101,6 +102,12 @@ export const handleUpdateCanvas = (data) => (dispatch, getState) => {
     data: data,
   });
 };
+export const handleClearState = () => (dispatch, getState) => {
+  dispatch({
+    type: types.CLEAR_STATE,
+    data: initialState,
+  });
+};
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -109,6 +116,9 @@ const reducer = (state = initialState, action) => {
         ...state,
         elements: [...state.elements, action.data],
       };
+    }
+    case types.CLEAR_STATE: {
+      return action.data;
     }
     case types.DELETE_ELEMENT: {
       return {

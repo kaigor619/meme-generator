@@ -15,7 +15,6 @@ const Header = () => {
   const dispatch = useDispatch();
   const [isExport, setIsExport] = useState(false);
   const history = useHistory();
-  const stage = useSelector((state) => state.stage);
 
   return (
     <>

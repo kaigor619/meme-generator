@@ -25,21 +25,21 @@ const ToolsBar = ({ handleAddElement, handleChangeActiveElement }) => {
         icon: textIcon,
         action: () => handleAddElement(),
       },
-      {
-        label: "Image",
-        icon: imageIcon,
-        action: () => {},
-      },
-      {
-        label: "Upload",
-        icon: uploadIcon,
-        action: () => {},
-      },
-      {
-        label: "Back",
-        icon: backgroundIcon,
-        action: () => {},
-      },
+      // {
+      //   label: "Image",
+      //   icon: imageIcon,
+      //   action: () => {},
+      // },
+      // {
+      //   label: "Upload",
+      //   icon: uploadIcon,
+      //   action: () => {},
+      // },
+      // {
+      //   label: "Back",
+      //   icon: backgroundIcon,
+      //   action: () => {},
+      // },
     ],
     [classes]
   );
