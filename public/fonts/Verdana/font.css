@@ -1,0 +1,10 @@
+@font-face {
+  font-family: "Verdana Pro";
+  src: url("./VerdanaPro-Regular.eot");
+  src: local("Verdana Pro"), local("VerdanaPro-Regular"),
+    url("./VerdanaPro-Regular.eot?#iefix") format("embedded-opentype"),
+    url("./VerdanaPro-Regular.woff") format("woff"),
+    url("./VerdanaPro-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}

@@ -1,0 +1,10 @@
+@font-face {
+  font-family: "Times New Roman";
+  src: url("./TimesNewRomanPSMT.eot");
+  src: local("Times New Roman"), local("TimesNewRomanPSMT"),
+    url("./TimesNewRomanPSMT.eot?#iefix") format("embedded-opentype"),
+    url("./TimesNewRomanPSMT.woff") format("woff"),
+    url("./TimesNewRomanPSMT.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
