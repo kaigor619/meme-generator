@@ -40,6 +40,12 @@ const initialState = {
   memeBackgrounds: [],
 };
 
+export const handleDeleteElement = (id) => {
+  return {
+    type: types.DELETE_ELEMENT,
+    id,
+  };
+};
 export const handleFillState = (obj) => {
   return {
     type: types.UPDATE_STATE,

@@ -7,21 +7,27 @@ import {
   Color,
 } from "components/Form";
 import SidebarSection from "components/SidebarSection";
-import { Form } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { connect } from "react-redux";
 import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
-import { handleUpdateElement } from "reducers";
+import { handleUpdateElement, handleDeleteElement } from "reducers";
 import * as helper from "utils/helpers";
 import { FONTS } from "types/fonts";
 
 import fontSizeIcon from "assets/images/font-size.svg";
 import lineHeightIcon from "assets/images/line-height.svg";
+import deleteIcon from "assets/images/delete.svg";
 
 import { textAlignOptions, textStyleOptions, fontStyleOptions } from "./data";
 
 import classes from "./TextOptions.module.scss";
 
-const TextOptions = ({ activeId, elements, handleUpdateElement }) => {
+const TextOptions = ({
+  activeId,
+  elements,
+  handleUpdateElement,
+  handleDeleteElement,
+}) => {
   const [textStyle, setTextStyle] = useState(null);
 
   useEffect(() => {
@@ -131,6 +137,16 @@ const TextOptions = ({ activeId, elements, handleUpdateElement }) => {
           />
         </div>
       </SidebarSection>
+
+      <div className={classes.btnGroup}>
+        <button
+          className={classes.btnDelete}
+          onClick={() => handleDeleteElement(activeId)}
+        >
+          <img src={deleteIcon} alt="Delete" />
+          <span>Delete</span>
+        </button>
+      </div>
     </>
   );
 };
@@ -142,6 +158,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatch = {
   handleUpdateElement,
+  handleDeleteElement,
 };
 
 export default connect(mapStateToProps, mapDispatch)(TextOptions);

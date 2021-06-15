@@ -72,3 +72,32 @@
     color: #4f4f4f;
   }
 }
+
+.btnGroup {
+  display: flex;
+}
+
+.btnDelete {
+  border-radius: 5px;
+  background: #ff9090;
+  font-family: "PT Sans";
+  font-size: 16px;
+  line-height: 16px;
+  color: #ffffff;
+  border: none;
+  padding: 7px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 10px 0 auto;
+  transition: 0.2s background;
+
+  &:hover {
+    background: #ff5959;
+  }
+
+  & > img {
+    width: 14px;
+    margin-right: 8px;
+  }
+}

@@ -13,6 +13,7 @@ import * as konvaService from "services/konva";
 import Konva from "konva";
 import * as helper from "utils/helpers";
 import canvasBackground from "assets/images/canvas-background.jpg";
+import { FONTS } from "types/fonts";
 
 import "./Canvas.scss";
 
@@ -43,7 +44,6 @@ class Canvas extends Component {
       .filter((item) => item.type !== ELEMENT_TYPE.background)
       .forEach((item) => {
         let isTransforming = item.transformer.isTransforming();
-
         // ** understand why isTransforming always false
         // if (isTransforming && item.id !== id) {
         if (item.id !== id) {
@@ -117,7 +117,6 @@ class Canvas extends Component {
     layer.add(rect);
 
     layer.on("click", (e) => {
-      console.log("background click");
       this.props.handleChangeActiveElement(canvas.id);
       helper.toggleCanvasEdit(true);
       this.handleDeleteTransformerExcept();
@@ -143,7 +142,6 @@ class Canvas extends Component {
     }
     if (options.height !== this.props.canvas.height) {
       if (options.height > canvasContent.clientHeight) {
-        console.log(options.height);
         options.height = canvasContent.clientHeight;
         // let x =
         //   (100 * (options.width - canvasContent.clientWidth)) / options.width;
@@ -193,13 +191,13 @@ class Canvas extends Component {
   };
 
   createElements = (elements, { isAdd }) => {
+    const fontsNames = [];
     elements.forEach((item) => {
       if (item.type === ELEMENT_TYPE.background) {
         const imageObj = new Image();
         const layer = new Konva.Layer();
 
         layer.on("click", (e) => {
-          console.log("background click");
           this.props.handleChangeActiveElement(item.id);
           helper.toggleCanvasEdit(true);
 
@@ -230,6 +228,9 @@ class Canvas extends Component {
       }
       if (item.type === ELEMENT_TYPE.text) {
         const layer = new Konva.Layer();
+
+        if (!fontsNames.includes(item.style.fontFamily))
+          fontsNames.push(item.style.fontFamily);
 
         const textNode = new Konva.Text({
           draggable: true,
@@ -293,10 +294,7 @@ class Canvas extends Component {
           this.handleDeleteTransformerExcept(item.id);
         });
         textNode.on("dragend", (e) => {
-          console.log("touchend");
-
           const { x, y } = textNode.position();
-          console.log(x, y);
 
           const updatedElement = this.props.elements.find(
             (x) => x.id === this.props.activeId
@@ -404,6 +402,38 @@ class Canvas extends Component {
         this.handleDeleteTransformerExcept(item.id);
       }
     });
+
+    if (fontsNames.length) {
+      const head = document.querySelector("head");
+      const links = document.querySelectorAll("link[data-font]");
+
+      fontsNames.forEach((value) => {
+        const is = [...links].some(
+          (node) => node.getAttribute("data-font") === value
+        );
+
+        const url = FONTS.find((x) => x.label === value)?.url;
+
+        if (!is) {
+          const link = document.createElement("link");
+          link.setAttribute("data-font", value);
+          link.rel = "stylesheet";
+          link.href = url;
+          head.appendChild(link);
+          link.onload = () => {
+            this.elementsState
+              .filter(
+                (item) =>
+                  item.type === ELEMENT_TYPE.text &&
+                  item.element.attrs.fontFamily === value
+              )
+              .forEach((item) => {
+                item.layer.draw();
+              });
+          };
+        }
+      });
+    }
   };
 
   componentDidMount() {
@@ -529,7 +559,16 @@ class Canvas extends Component {
 
     if (currElements.length !== nextElements.length) {
       const restElements = helper.getRestArray(currElements, nextElements);
-      this.createElements(restElements, { isAdd: true });
+
+      if (currElements.length > nextElements.length) {
+        restElements.forEach((x) => {
+          let p = this.elementsState.find((z) => z.id === x.id);
+          p.layer.destroy();
+          this.elementsState = this.elementsState.filter((a) => a.id === x.id);
+        });
+      } else {
+        this.createElements(restElements, { isAdd: true });
+      }
     } else {
       currElements.forEach((item) => {
         const nextItem = nextElements.find((x) => x.id === item.id);
@@ -551,7 +590,6 @@ class Canvas extends Component {
     const nextActiveId = nextProps.activeId;
 
     if (currActiveId !== nextActiveId && !nextActiveId) {
-      console.log(currActiveId, nextActiveId);
       const activeTransformElement = this.elementsState.find(
         (item) => item.id === currActiveId
       );

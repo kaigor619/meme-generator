@@ -80,6 +80,7 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
           <button type="submit" hidden></button>
         </form>
       </SidebarSection>
+
       <SidebarSection title="Background">
         <div className={classes.sectionGrid}>
           <Color

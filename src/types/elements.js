@@ -5,7 +5,7 @@ export const TEXT_OPTIONS_TEMPLATE = {
   style: {
     text: "Sample Text",
     fontFamily: "Impact",
-    fontStyle: "bold",
+    fontStyle: "normal",
     align: "left",
     textDecoration: "",
     fontSize: 40,
@@ -38,6 +38,8 @@ export const STYLE_TYPES = {
   width: "number",
   height: "number",
   backgroundColor: "string",
+  scaleX: "number",
+  scaleY: "number",
 };
 
 export const CANVAS_CONFIG = ["container", "width", "height"];

@@ -26,10 +26,10 @@ const Header = () => {
           <img src={logo} alt="Logo" />
         </div>
         <div className="header_btns">
-          <button className="header_preview">
+          {/* <button className="header_preview">
             <img src={eye} alt="Eye" /> Preview
           </button>
-          <button className="header_save">Save</button>
+          <button className="header_save">Save</button> */}
           <button className="header_export" onClick={() => setIsExport(true)}>
             Export
           </button>
