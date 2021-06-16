@@ -4,7 +4,6 @@ import cls from "classnames";
 import classes from "./Color.module.scss";
 
 const Color = ({ name, value, className, onChange }) => {
-  const [color, setColor] = useState(value);
   const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
@@ -14,7 +13,6 @@ const Color = ({ name, value, className, onChange }) => {
   }, []);
 
   const handleChange = (color, event) => {
-    setColor(color.hex);
     onChange({ target: { name, value: color.hex } });
   };
 
@@ -33,18 +31,18 @@ const Color = ({ name, value, className, onChange }) => {
           className={classes.colorPickerWrapper}
           onClick={(e) => e.stopPropagation()}
         >
-          <ChromePicker color={color} onChange={handleChange} />
+          <ChromePicker color={value} onChange={handleChange} />
         </div>
       )}
       <div className={classes.color}>
         <div className={classes.colorField}>
           <div
-            style={{ backgroundColor: color }}
+            style={{ backgroundColor: value }}
             className={classes.colorPicker}
             onClick={handleClickPicker}
           />
           <div className={classes.colorLabel}>
-            <input id={name} name={name} value={color} onChange={onChange} />
+            <input id={name} name={name} value={value} onChange={onChange} />
           </div>
         </div>
       </div>

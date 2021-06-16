@@ -101,3 +101,17 @@
     margin-right: 8px;
   }
 }
+
+.shadowSection {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+.shadowLabel {
+  display: flex;
+  align-items: center;
+
+  & > span {
+    margin-left: 10px;
+  }
+}

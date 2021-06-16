@@ -561,10 +561,13 @@ class Canvas extends Component {
       const restElements = helper.getRestArray(currElements, nextElements);
 
       if (currElements.length > nextElements.length) {
+        this.props.handleChangeActiveElement();
+        this.handleDeleteTransformerExcept();
         restElements.forEach((x) => {
           let p = this.elementsState.find((z) => z.id === x.id);
+          p.transformer.detach();
           p.layer.destroy();
-          this.elementsState = this.elementsState.filter((a) => a.id === x.id);
+          this.elementsState = this.elementsState.filter((a) => a.id !== x.id);
         });
       } else {
         this.createElements(restElements, { isAdd: true });
@@ -593,7 +596,7 @@ class Canvas extends Component {
       const activeTransformElement = this.elementsState.find(
         (item) => item.id === currActiveId
       );
-      if (activeTransformElement) {
+      if (activeTransformElement?.transformer) {
         activeTransformElement.transformer.enabledAnchors([]);
         activeTransformElement.transformer.hide();
         activeTransformElement.layer.draw();

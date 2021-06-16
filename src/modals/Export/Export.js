@@ -31,7 +31,7 @@ const Export = ({ show, onHide }) => {
 
     const canvas_background_img = canvas.backgroundFile;
     const modifiedCanvas = { ...canvas };
-    delete modifiedCanvas.backgroundImage;
+
     delete modifiedCanvas.backgroundFile;
 
     const reqData = {

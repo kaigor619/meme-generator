@@ -8,12 +8,14 @@ import Header from "components/Header";
 import Sidebar from "./scenes/Sidebar";
 import Canvas from "./scenes/Canvas";
 import ToolsBar from "./scenes/ToolsBar";
+import OfflineError from "components/OfflineError";
 
 import classes from "./EditPage.module.scss";
 
 const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
   const { memeId } = useParams();
   const [loading, setLoading] = useState(Boolean(memeId));
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (memeId) {
@@ -23,7 +25,9 @@ const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
           const willUpdate = { canvas, elements };
           handleFillState(willUpdate);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          setError(true);
+        });
     }
 
     return handleClearState;
@@ -34,6 +38,8 @@ const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
       setLoading(false);
     }
   }, [isReadyCanvas]);
+
+  if (error) return <OfflineError />;
 
   if (loading)
     return (

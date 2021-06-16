@@ -68,7 +68,7 @@
   line-height: 127.69%;
   text-align: center;
   color: #5096ff;
-  margin-bottom: 40px;
+  margin-bottom: 80px;
 }
 
 .memes_grid {
@@ -78,9 +78,12 @@
   grid-gap: 15px;
 }
 
+.meme_grid_item_wrap {
+  max-width: 350px;
+}
+
 .meme_grid_item {
   position: relative;
-
   & > img {
     width: 100%;
     height: auto;

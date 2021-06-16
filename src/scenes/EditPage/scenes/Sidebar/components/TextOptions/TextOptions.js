@@ -33,6 +33,8 @@ const TextOptions = ({
   useEffect(() => {
     if (activeId && elements) {
       const element = elements.find((item) => item.id === activeId);
+
+      console.log(element);
       element && setTextStyle(element);
     }
   }, [activeId, elements.length]);
@@ -135,6 +137,21 @@ const TextOptions = ({
             className={classes.fullRow}
             onChange={onChangeStyle}
           />
+          <div className={classes.shadowSection}>
+            <label className={classes.shadowLabel}>
+              <input
+                name="shadowEnabled"
+                onChange={(e) => {
+                  onChangeStyle({
+                    target: { name: e.target.name, value: e.target.checked },
+                  });
+                }}
+                checked={Boolean(textStyle.style.shadowEnabled)}
+                type="checkbox"
+              />
+              <span>Shadow</span>
+            </label>
+          </div>
         </div>
       </SidebarSection>
 

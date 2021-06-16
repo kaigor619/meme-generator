@@ -90,31 +90,33 @@ function App() {
 
         <div className="memes_grid">
           {images?.map((item) => (
-            <div key={item._id} className="meme_grid_item">
-              <img src={item.url} alt="Meme image" />
-              <div className="overlay_wrap">
-                <p className="meme_thumbnail_name">Meme</p>
+            <div key={item._id} className="meme_grid_item_wrap">
+              <div className="meme_grid_item">
+                <img src={item.url} alt="Meme image" />
+                <div className="overlay_wrap">
+                  <p className="meme_thumbnail_name">Meme</p>
 
-                <div className="meme_action_buttons">
-                  <div
-                    className="meme_action_btn"
-                    onClick={() => handleEditImage(item)}
-                  >
-                    <EditIcon />
-                  </div>
-                  <div
-                    className="meme_action_btn"
-                    onClick={() => handleSaveImage(item)}
-                  >
-                    <DownloadIcon />
-                  </div>
-                  <div
-                    className="meme_action_btn"
-                    onClick={() => {
-                      window.open(item.url, "_blank");
-                    }}
-                  >
-                    <ViewIcon />
+                  <div className="meme_action_buttons">
+                    <div
+                      className="meme_action_btn"
+                      onClick={() => handleEditImage(item)}
+                    >
+                      <EditIcon />
+                    </div>
+                    <div
+                      className="meme_action_btn"
+                      onClick={() => handleSaveImage(item)}
+                    >
+                      <DownloadIcon />
+                    </div>
+                    <div
+                      className="meme_action_btn"
+                      onClick={() => {
+                        window.open(item.url, "_blank");
+                      }}
+                    >
+                      <ViewIcon />
+                    </div>
                   </div>
                 </div>
               </div>

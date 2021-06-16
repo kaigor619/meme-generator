@@ -89,7 +89,18 @@ export function createEditableBlock(textNode) {
   textarea.style.transformOrigin = "left top";
   textarea.style.textAlign = textNode.align();
   textarea.style.color = textNode.fill();
-  textarea.style.textShadow = "0 0 10px #000";
+
+  const {
+    shadowEnabled,
+    shadowBlur,
+    shadowColor,
+    shadowOffsetX,
+    shadowOffsetY,
+  } = textNode.getAttrs();
+
+  textarea.style.textShadow = shadowEnabled
+    ? `${shadowOffsetX} ${shadowOffsetY} ${shadowBlur}px ${shadowColor}`
+    : "none";
   textarea.innerText = textNode.text();
 
   const rotation = textNode.rotation();

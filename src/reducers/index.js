@@ -124,7 +124,17 @@ const reducer = (state = initialState, action) => {
       };
     }
     case types.CLEAR_STATE: {
-      return action.data;
+      return {
+        ...state,
+        isReadyCanvas: false,
+        canvasOptions: initialState.canvasOptions,
+        canvas: initialState.canvas,
+        activeId: "",
+        stage: null,
+        modalId: "",
+        isReadyCanvas: false,
+        elements: [],
+      };
     }
     case types.DELETE_ELEMENT: {
       return {
