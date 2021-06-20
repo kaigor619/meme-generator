@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import { fetchGetMeme } from "api/memesAPI";
@@ -9,6 +9,7 @@ import Sidebar from "./scenes/Sidebar";
 import Canvas from "./scenes/Canvas";
 import ToolsBar from "./scenes/ToolsBar";
 import OfflineError from "components/OfflineError";
+import CanvasContext from "contexts/canvas-context";
 
 import classes from "./EditPage.module.scss";
 
@@ -16,6 +17,7 @@ const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
   const { memeId } = useParams();
   const [loading, setLoading] = useState(Boolean(memeId));
   const [error, setError] = useState(false);
+  const canvasAPI = useContext(CanvasContext);
 
   useEffect(() => {
     if (memeId) {
@@ -57,7 +59,7 @@ const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
         <div className={classes.toolsBarWrapper}>
           <ToolsBar />
         </div>
-        <Canvas />
+        <Canvas {...canvasAPI} />
         <div className={classes.sidebarWrapper}>
           <Sidebar />
         </div>

@@ -1,4 +1,5 @@
 import { STYLE_TYPES, CANVAS_CONFIG } from "types/elements";
+import Konva from "konva";
 
 export const comparisonStyle = (curr, next) => {
   let diffStyles = [],
@@ -154,4 +155,73 @@ export const toggleCanvasEdit = (toggle) => {
   editCircles.forEach((item) => {
     item.style.display = toggle ? "block" : "none";
   });
+};
+
+/**
+ * Create Konva Image with specific parameters and when is loaded call callback
+ * @param { Object } props
+ * @param { Function } callback - when img is loaded
+ * @returns { Boolean }
+ */
+export const createImage = (props, callback) => {
+  const imageObj = new Image();
+
+  imageObj.onload = () => {
+    const konvaImage = new Konva.Image({
+      x: props.x || 0,
+      y: props.y || 0,
+      image: imageObj,
+      width: props.width,
+      height: props.height,
+    });
+
+    callback(konvaImage);
+  };
+  imageObj.crossOrigin = "Anonymous";
+  imageObj.src = props.src;
+};
+
+/**
+ * Create Konva Rect
+ * @param { Object } props
+ * @param { Function } callback - when img is loaded
+ * @returns { Boolean }
+ */
+export const createRect = (props) => {
+  const rect = new Konva.Rect({
+    x: 0,
+    y: 0,
+    width: props.width,
+    height: props.height,
+    fill: props.fill,
+  });
+
+  return rect;
+};
+/**
+ * Create Konva Text
+ * @param { Object } props
+ * @returns { Boolean }
+ */
+export const createText = (props) => {
+  const textNode = new Konva.Text({
+    draggable: true,
+    ...props,
+  });
+
+  return textNode;
+};
+/**
+ * Center textNode
+ * @param { Object } props
+ * @param { Function } callback - when img is loaded
+ * @returns { Boolean }
+ */
+export const centerTextNode = (props) => {
+  const textNode = new Konva.Text({
+    draggable: true,
+    ...props,
+  });
+
+  return textNode;
 };

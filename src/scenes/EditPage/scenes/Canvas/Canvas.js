@@ -12,8 +12,8 @@ import {
 import * as konvaService from "services/konva";
 import Konva from "konva";
 import * as helper from "utils/helpers";
-import canvasBackground from "assets/images/canvas-background.jpg";
 import { FONTS } from "types/fonts";
+import * as fontHelper from "utils/font";
 
 import "./Canvas.scss";
 
@@ -30,22 +30,19 @@ class Canvas extends Component {
     layer: null,
   };
   elementsState = [];
-  transformer = null;
-  canvasNode = null;
 
+  /* Click on frame */
   handleClickFrame = () => {
     this.handleDeleteTransformerExcept();
     this.props.handleChangeActiveElement("");
     helper.toggleCanvasEdit(false);
   };
 
+  // Delete all transformers except specified id
   handleDeleteTransformerExcept(id) {
     this.elementsState
       .filter((item) => item.type !== ELEMENT_TYPE.background)
       .forEach((item) => {
-        let isTransforming = item.transformer.isTransforming();
-        // ** understand why isTransforming always false
-        // if (isTransforming && item.id !== id) {
         if (item.id !== id) {
           item.transformer.hide();
           item.transformer.enabledAnchors([]);
@@ -56,64 +53,23 @@ class Canvas extends Component {
 
   init = () => {
     const { elements, canvas, canvasOptions } = this.props;
-
+    const { background } = this;
     const config = helper.getCanvasConfig({ ...canvas, ...canvasOptions });
-
     const stage = new Konva.Stage({ ...config });
-    this.canvasNode = document.getElementById(canvas.container);
-    this.stage = stage;
-
-    var layer = new Konva.Layer();
-    this.background.layer = layer;
+    const layer = new Konva.Layer();
 
     if (canvas.backgroundImage) {
-      const imageObj = new Image();
-      imageObj.onload = () => {
-        const yoda = new Konva.Image({
-          x: 0,
-          y: 0,
-          image: imageObj,
-          width: canvas.width,
-          height: canvas.height,
-        });
-
-        this.background.backgroundImage = yoda;
-
-        layer.add(yoda);
-        layer.batchDraw();
-      };
-      imageObj.crossOrigin = "Anonymous";
-      imageObj.src = canvas.backgroundImage;
-    } else {
-      const imageObj = new Image();
-
-      imageObj.onload = () => {
-        const yoda = new Konva.Image({
-          x: 0,
-          y: 0,
-          image: imageObj,
-          width: canvas.width,
-          height: canvas.height,
-        });
-
-        this.background.backgroundImage = yoda;
-
-        yoda.hide();
-
-        layer.add(yoda);
-        layer.batchDraw();
-      };
-      imageObj.src = canvasBackground;
+      helper.createImage(
+        { src: canvas.backgroundImage, ...canvas },
+        (readyImage) => {
+          background.backgroundImage = readyImage;
+          layer.add(readyImage);
+          layer.batchDraw();
+        }
+      );
     }
 
-    const rect = new Konva.Rect({
-      x: 0,
-      y: 0,
-      width: canvas.width,
-      height: canvas.height,
-      fill: canvas.fill,
-    });
-    this.background.backgroundRect = rect;
+    const rect = helper.createRect(canvas);
     layer.add(rect);
 
     layer.on("click", (e) => {
@@ -122,108 +78,85 @@ class Canvas extends Component {
       this.handleDeleteTransformerExcept();
     });
 
-    this.stage.add(layer);
+    stage.add(layer);
     layer.draw();
 
+    this.stage = stage;
+    background.backgroundRect = rect;
+    background.layer = layer;
+
     this.createElements(elements, { isAdd: false });
-    this.props.handleUpdateStage(this.stage);
+
+    this.props.changeCanvasAPI({
+      stage,
+      background,
+      elementsState,
+    });
   };
 
   updateCanvas = (options) => {
-    const canvasContent = document.querySelector(".canvasContent");
-    if (options.width !== this.props.canvas.width) {
-      if (options.width > canvasContent.clientWidth) {
-        options.width = canvasContent.clientWidth;
-        // let x =
-        //   (100 * (options.width - canvasContent.clientWidth)) / options.width;
-        // console.log(options.width, canvasContent.clientWidth);
-        // options.scaleX = x.toFixed(0) / 100;
-      }
-    }
-    if (options.height !== this.props.canvas.height) {
-      if (options.height > canvasContent.clientHeight) {
-        options.height = canvasContent.clientHeight;
-        // let x =
-        //   (100 * (options.width - canvasContent.clientWidth)) / options.width;
-        // console.log(options.width, canvasContent.clientWidth);
-        // options.scaleX = x.toFixed(0) / 100;
-      }
-    }
+    const { width, height, fill, backgroundImage } = options;
+    const { background } = this;
+
+    // const canvasContent = document.querySelector(".canvasContent");
+    // if (options.width !== this.props.canvas.width) {
+    //   if (options.width > canvasContent.clientWidth) {
+    //     options.width = canvasContent.clientWidth;
+    //     // let x =
+    //     //   (100 * (options.width - canvasContent.clientWidth)) / options.width;
+    //     // console.log(options.width, canvasContent.clientWidth);
+    //     // options.scaleX = x.toFixed(0) / 100;
+    //   }
+    // }
+    // if (options.height !== this.props.canvas.height) {
+    //   if (options.height > canvasContent.clientHeight) {
+    //     options.height = canvasContent.clientHeight;
+    //     // let x =
+    //     //   (100 * (options.width - canvasContent.clientWidth)) / options.width;
+    //     // console.log(options.width, canvasContent.clientWidth);
+    //     // options.scaleX = x.toFixed(0) / 100;
+    //   }
+    // }
 
     this.stage.setAttrs(helper.getCanvasConfig(options));
-
-    if (!options.backgroundImage) {
-      this.background.backgroundRect.setAttrs({
-        width: options.width,
-        height: options.height,
-        fill: options.fill,
-      });
+    if (!backgroundImage) {
+      background.backgroundRect.setAttrs({ width, height, fill });
+      background.backgroundImage.hide();
+      return background.layer.draw();
     }
 
-    if (options.backgroundImage) {
-      if (this.props.canvas.backgroundImage !== options.backgroundImage) {
-        const imageObj = new Image();
-
-        imageObj.onload = () => {
-          this.background.backgroundImage.setAttrs({
-            width: options.width,
-            height: options.height,
-            image: imageObj,
-          });
-
-          this.background.backgroundImage.show();
-          this.background.layer.draw();
-        };
-
-        imageObj.src = options.backgroundImage;
-      } else {
-        this.background.backgroundImage.setAttrs({
-          width: options.width,
-          height: options.height,
-        });
-
-        this.background.layer.draw();
-      }
+    if (this.props.canvas.backgroundImage !== backgroundImage) {
+      helper.createImage({ src: backgroundImage, ...options }, (image) => {
+        background.backgroundImage.setAttrs({ width, height, image });
+        background.backgroundImage.show();
+        background.layer.draw();
+      });
     } else {
-      this.background.backgroundImage.hide();
-      this.background.layer.draw();
+      background.backgroundImage.setAttrs({ width, height });
+      background.layer.draw();
     }
   };
 
   createElements = (elements, { isAdd }) => {
     const fontsNames = [];
+
     elements.forEach((item) => {
       if (item.type === ELEMENT_TYPE.background) {
-        const imageObj = new Image();
         const layer = new Konva.Layer();
 
-        layer.on("click", (e) => {
+        layer.on("click", () => {
           this.props.handleChangeActiveElement(item.id);
           helper.toggleCanvasEdit(true);
-
           this.handleDeleteTransformerExcept();
         });
 
-        imageObj.onload = () => {
-          const yoda = new Konva.Image({
-            x: item.x,
-            y: item.y,
-            image: imageObj,
-            width: item.width,
-            height: item.height,
-          });
-
-          layer.add(yoda);
+        helper.createImage(item, (element) => {
+          const { id, type } = item;
+          layer.add(element);
           layer.batchDraw();
+          this.elementsState.push({ id, type, layer, element });
+        });
 
-          this.elementsState.push({
-            id: item.id,
-            type: item.type,
-            layer,
-            element: yoda,
-          });
-        };
-        imageObj.src = item.src;
         this.stage.add(layer);
       }
       if (item.type === ELEMENT_TYPE.text) {
@@ -232,34 +165,21 @@ class Canvas extends Component {
         if (!fontsNames.includes(item.style.fontFamily))
           fontsNames.push(item.style.fontFamily);
 
-        const textNode = new Konva.Text({
-          draggable: true,
-          x: 0,
-          y: 0,
-          ...item.style,
+        const textNode = helper.createText(item.style);
+
+        layer.on("mouseover", () => {
+          const element = this.elementsState.find((c) => c.id === item.id);
+          if (!element || element.transformer.enabledAnchors().length) return;
+          element.transformer.enabledAnchors([]);
+          element.transformer.show();
+          element.layer.draw();
         });
 
-        layer.on("mouseover", (evt) => {
-          const x = this.elementsState.find((c) => c.id === item.id);
-
-          if (!x) return;
-
-          if (x.transformer.enabledAnchors().length > 0) return;
-
-          x.transformer.enabledAnchors([]);
-          x.transformer.show();
-          x.layer.draw();
-        });
-        layer.on("mouseout", (evt) => {
-          const x = this.elementsState.find((c) => c.id === item.id);
-
-          if (!x) return;
-
-          if (x.transformer.enabledAnchors().length > 0) return;
-
-          x.transformer.hide();
-          x.layer.draw();
-          // this.hoverRef.current.style.display = "none";
+        layer.on("mouseout", () => {
+          const element = this.elementsState.find((c) => c.id === item.id);
+          if (!element || element.transformer.enabledAnchors().length) return;
+          element.transformer.hide();
+          element.layer.draw();
         });
 
         if (isAdd) {
@@ -397,225 +317,207 @@ class Canvas extends Component {
           transformer: tr,
         });
         layer.draw();
-        this.stage.add(layer);
+
+        console.log(this.stage);
+        // this.stage.add(layer);
 
         this.handleDeleteTransformerExcept(item.id);
       }
     });
 
-    if (fontsNames.length) {
-      const head = document.querySelector("head");
-      const links = document.querySelectorAll("link[data-font]");
-
-      fontsNames.forEach((value) => {
-        const is = [...links].some(
-          (node) => node.getAttribute("data-font") === value
-        );
-
-        const url = FONTS.find((x) => x.label === value)?.url;
-
-        if (!is) {
-          const link = document.createElement("link");
-          link.setAttribute("data-font", value);
-          link.rel = "stylesheet";
-          link.href = url;
-          head.appendChild(link);
-          link.onload = () => {
-            this.elementsState
-              .filter(
-                (item) =>
-                  item.type === ELEMENT_TYPE.text &&
-                  item.element.attrs.fontFamily === value
-              )
-              .forEach((item) => {
-                item.layer.draw();
-              });
-          };
-        }
-      });
-    }
+    fontHelper.addFonts(fontsNames, () => {
+      this.elementsState
+        .filter(
+          (item) =>
+            item.type === ELEMENT_TYPE.text &&
+            fontsNames.includes(item.element.attrs.fontFamily)
+        )
+        .forEach((item) => {
+          item.layer.draw();
+        });
+    });
   };
 
   componentDidMount() {
     this.init();
 
-    const editCircles = document.querySelectorAll(".editCircle");
+    // const editCircles = document.querySelectorAll(".editCircle");
 
-    editCircles.forEach((item) => {
-      item.onmousedown = (e) => {
-        const canvasContent = document.querySelector(".canvasContent");
-        const canvasEdit = document.querySelector(".canvasEditWrap");
-        const coords = canvasContent.getBoundingClientRect();
-        const coordsEdit = canvasEdit.getBoundingClientRect();
-        const width = canvasEdit.clientWidth;
-        const height = canvasEdit.clientHeight;
-        const minWidth = 200;
-        const minHeight = 200;
+    // editCircles.forEach((item) => {
+    //   item.onmousedown = (e) => {
+    //     const canvasContent = document.querySelector(".canvasContent");
+    //     const canvasEdit = document.querySelector(".canvasEditWrap");
+    //     const coords = canvasContent.getBoundingClientRect();
+    //     const coordsEdit = canvasEdit.getBoundingClientRect();
+    //     const width = canvasEdit.clientWidth;
+    //     const height = canvasEdit.clientHeight;
+    //     const minWidth = 200;
+    //     const minHeight = 200;
 
-        const styleTop = (canvasContent.clientHeight - height) / 2;
-        const styleLeft = (canvasContent.clientWidth - width) / 2;
+    //     const styleTop = (canvasContent.clientHeight - height) / 2;
+    //     const styleLeft = (canvasContent.clientWidth - width) / 2;
 
-        document.onmousemove = (e) => {
-          let calcWidth = 0;
-          let calcHeight = 0;
+    //     document.onmousemove = (e) => {
+    //       let calcWidth = 0;
+    //       let calcHeight = 0;
 
-          if (item.classList.contains("tr")) {
-            const { clientX, clientY } = e;
+    //       if (item.classList.contains("tr")) {
+    //         const { clientX, clientY } = e;
 
-            canvasEdit.style.top = "auto";
-            canvasEdit.style.right = "auto";
-            canvasEdit.style.bottom = styleTop + "px";
-            canvasEdit.style.left = styleLeft + "px";
-            canvasEdit.style.transform = "none";
+    //         canvasEdit.style.top = "auto";
+    //         canvasEdit.style.right = "auto";
+    //         canvasEdit.style.bottom = styleTop + "px";
+    //         canvasEdit.style.left = styleLeft + "px";
+    //         canvasEdit.style.transform = "none";
 
-            let posX = clientX > coords.right ? coords.right : clientX;
-            let posY = clientY <= coords.top ? coords.top : clientY;
+    //         let posX = clientX > coords.right ? coords.right : clientX;
+    //         let posY = clientY <= coords.top ? coords.top : clientY;
 
-            let newWidth = posX - coordsEdit.left;
-            let newHeight = coordsEdit.bottom - posY;
+    //         let newWidth = posX - coordsEdit.left;
+    //         let newHeight = coordsEdit.bottom - posY;
 
-            calcWidth = newWidth <= minWidth ? minWidth : newWidth;
-            calcHeight = newHeight <= minHeight ? minHeight : newHeight;
-          } else if (item.classList.contains("br")) {
-            const { clientX, clientY } = e;
+    //         calcWidth = newWidth <= minWidth ? minWidth : newWidth;
+    //         calcHeight = newHeight <= minHeight ? minHeight : newHeight;
+    //       } else if (item.classList.contains("br")) {
+    //         const { clientX, clientY } = e;
 
-            canvasEdit.style.top = styleTop + "px";
-            canvasEdit.style.left = styleLeft + "px";
-            canvasEdit.style.bottom = "auto";
-            canvasEdit.style.right = "auto";
-            canvasEdit.style.transform = "none";
+    //         canvasEdit.style.top = styleTop + "px";
+    //         canvasEdit.style.left = styleLeft + "px";
+    //         canvasEdit.style.bottom = "auto";
+    //         canvasEdit.style.right = "auto";
+    //         canvasEdit.style.transform = "none";
 
-            let posX = clientX > coords.right ? coords.right : clientX;
-            let posY = clientY >= coords.bottom ? coords.bottom : clientY;
+    //         let posX = clientX > coords.right ? coords.right : clientX;
+    //         let posY = clientY >= coords.bottom ? coords.bottom : clientY;
 
-            let newWidth = posX - coordsEdit.left;
-            let newHeight = posY - coordsEdit.top;
+    //         let newWidth = posX - coordsEdit.left;
+    //         let newHeight = posY - coordsEdit.top;
 
-            calcWidth = newWidth <= minWidth ? minWidth : newWidth;
-            calcHeight = newHeight <= minHeight ? minHeight : newHeight;
-          } else if (item.classList.contains("bl")) {
-            const { clientX, clientY } = e;
+    //         calcWidth = newWidth <= minWidth ? minWidth : newWidth;
+    //         calcHeight = newHeight <= minHeight ? minHeight : newHeight;
+    //       } else if (item.classList.contains("bl")) {
+    //         const { clientX, clientY } = e;
 
-            canvasEdit.style.top = styleTop + "px";
-            canvasEdit.style.right = styleLeft + "px";
-            canvasEdit.style.left = "auto";
-            canvasEdit.style.bottom = "auto";
-            canvasEdit.style.transform = "none";
+    //         canvasEdit.style.top = styleTop + "px";
+    //         canvasEdit.style.right = styleLeft + "px";
+    //         canvasEdit.style.left = "auto";
+    //         canvasEdit.style.bottom = "auto";
+    //         canvasEdit.style.transform = "none";
 
-            let posX = clientX <= coords.left ? coords.left : clientX;
-            let posY = clientY >= coords.bottom ? coords.bottom : clientY;
+    //         let posX = clientX <= coords.left ? coords.left : clientX;
+    //         let posY = clientY >= coords.bottom ? coords.bottom : clientY;
 
-            let newWidth = coordsEdit.right - posX;
-            let newHeight = posY - coordsEdit.top;
+    //         let newWidth = coordsEdit.right - posX;
+    //         let newHeight = posY - coordsEdit.top;
 
-            calcWidth = newWidth <= minWidth ? minWidth : newWidth;
-            calcHeight = newHeight <= minHeight ? minHeight : newHeight;
-          } else if (item.classList.contains("tl")) {
-            const { clientX, clientY } = e;
+    //         calcWidth = newWidth <= minWidth ? minWidth : newWidth;
+    //         calcHeight = newHeight <= minHeight ? minHeight : newHeight;
+    //       } else if (item.classList.contains("tl")) {
+    //         const { clientX, clientY } = e;
 
-            canvasEdit.style.bottom = styleTop + "px";
-            canvasEdit.style.right = styleLeft + "px";
-            canvasEdit.style.left = "auto";
-            canvasEdit.style.top = "auto";
-            canvasEdit.style.transform = "none";
+    //         canvasEdit.style.bottom = styleTop + "px";
+    //         canvasEdit.style.right = styleLeft + "px";
+    //         canvasEdit.style.left = "auto";
+    //         canvasEdit.style.top = "auto";
+    //         canvasEdit.style.transform = "none";
 
-            let posX = clientX <= coords.left ? coords.left : clientX;
-            let posY = clientY <= coords.top ? coords.top : clientY;
+    //         let posX = clientX <= coords.left ? coords.left : clientX;
+    //         let posY = clientY <= coords.top ? coords.top : clientY;
 
-            let newWidth = coordsEdit.right - posX;
-            let newHeight = coordsEdit.bottom - posY;
+    //         let newWidth = coordsEdit.right - posX;
+    //         let newHeight = coordsEdit.bottom - posY;
 
-            calcWidth = newWidth <= minWidth ? minWidth : newWidth;
-            calcHeight = newHeight <= minHeight ? minHeight : newHeight;
-          }
+    //         calcWidth = newWidth <= minWidth ? minWidth : newWidth;
+    //         calcHeight = newHeight <= minHeight ? minHeight : newHeight;
+    //       }
 
-          this.props.handleUpdateCanvas({
-            ...this.props.canvas,
-            width: +parseInt(calcWidth),
-            height: +parseInt(calcHeight),
-          });
+    //       this.props.handleUpdateCanvas({
+    //         ...this.props.canvas,
+    //         width: +parseInt(calcWidth),
+    //         height: +parseInt(calcHeight),
+    //       });
 
-          // this.background.layer.draw();
-        };
-        document.onmouseup = (e) => {
-          document.onmousemove = false;
+    //       // this.background.layer.draw();
+    //     };
+    //     document.onmouseup = (e) => {
+    //       document.onmousemove = false;
 
-          canvasEdit.style.inset = "auto";
-          canvasEdit.style.bottom = "auto";
-          canvasEdit.style.right = "auto";
-          canvasEdit.style.top = "50%";
-          canvasEdit.style.left = "50%";
-          canvasEdit.style.transform = "translate(-50%, -50%)";
-        };
-      };
-    });
+    //       canvasEdit.style.inset = "auto";
+    //       canvasEdit.style.bottom = "auto";
+    //       canvasEdit.style.right = "auto";
+    //       canvasEdit.style.top = "50%";
+    //       canvasEdit.style.left = "50%";
+    //       canvasEdit.style.transform = "translate(-50%, -50%)";
+    //     };
+    //   };
+    // });
   }
 
-  componentWillUpdate(nextProps) {
-    const currElements = this.props.elements;
-    const nextElements = nextProps.elements;
+  // componentWillUpdate(nextProps) {
+  //   const currElements = this.props.elements;
+  //   const nextElements = nextProps.elements;
 
-    // change elements
+  //   // change elements
 
-    if (currElements.length !== nextElements.length) {
-      const restElements = helper.getRestArray(currElements, nextElements);
+  //   if (currElements.length !== nextElements.length) {
+  //     const restElements = helper.getRestArray(currElements, nextElements);
 
-      if (currElements.length > nextElements.length) {
-        this.props.handleChangeActiveElement();
-        this.handleDeleteTransformerExcept();
-        restElements.forEach((x) => {
-          let p = this.elementsState.find((z) => z.id === x.id);
-          p.transformer.detach();
-          p.layer.destroy();
-          this.elementsState = this.elementsState.filter((a) => a.id !== x.id);
-        });
-      } else {
-        this.createElements(restElements, { isAdd: true });
-      }
-    } else {
-      currElements.forEach((item) => {
-        const nextItem = nextElements.find((x) => x.id === item.id);
-        const diffStyles = helper.comparisonStyle(item.style, nextItem.style);
-        const elementItem = this.elementsState.find((x) => x.id === item.id);
+  //     if (currElements.length > nextElements.length) {
+  //       this.props.handleChangeActiveElement();
+  //       this.handleDeleteTransformerExcept();
+  //       restElements.forEach((x) => {
+  //         let p = this.elementsState.find((z) => z.id === x.id);
+  //         p.transformer.detach();
+  //         p.layer.destroy();
+  //         this.elementsState = this.elementsState.filter((a) => a.id !== x.id);
+  //       });
+  //     } else {
+  //       this.createElements(restElements, { isAdd: true });
+  //     }
+  //   } else {
+  //     currElements.forEach((item) => {
+  //       const nextItem = nextElements.find((x) => x.id === item.id);
+  //       const diffStyles = helper.comparisonStyle(item.style, nextItem.style);
+  //       const elementItem = this.elementsState.find((x) => x.id === item.id);
 
-        if (elementItem && diffStyles) {
-          diffStyles.forEach((styleKey) =>
-            elementItem.element[styleKey](nextItem.style[styleKey])
-          );
-          elementItem.layer.draw();
-        }
-      });
-    }
+  //       if (elementItem && diffStyles) {
+  //         diffStyles.forEach((styleKey) =>
+  //           elementItem.element[styleKey](nextItem.style[styleKey])
+  //         );
+  //         elementItem.layer.draw();
+  //       }
+  //     });
+  //   }
 
-    // change activeId
+  //   // change activeId
 
-    const currActiveId = this.props.activeId;
-    const nextActiveId = nextProps.activeId;
+  //   const currActiveId = this.props.activeId;
+  //   const nextActiveId = nextProps.activeId;
 
-    if (currActiveId !== nextActiveId && !nextActiveId) {
-      const activeTransformElement = this.elementsState.find(
-        (item) => item.id === currActiveId
-      );
-      if (activeTransformElement?.transformer) {
-        activeTransformElement.transformer.enabledAnchors([]);
-        activeTransformElement.transformer.hide();
-        activeTransformElement.layer.draw();
-      }
-    }
+  //   if (currActiveId !== nextActiveId && !nextActiveId) {
+  //     const activeTransformElement = this.elementsState.find(
+  //       (item) => item.id === currActiveId
+  //     );
+  //     if (activeTransformElement?.transformer) {
+  //       activeTransformElement.transformer.enabledAnchors([]);
+  //       activeTransformElement.transformer.hide();
+  //       activeTransformElement.layer.draw();
+  //     }
+  //   }
 
-    // change canvas
+  //   // change canvas
 
-    const currCanvas = this.props.canvas;
-    const nextCanvas = nextProps.canvas;
+  //   const currCanvas = this.props.canvas;
+  //   const nextCanvas = nextProps.canvas;
 
-    let z = Object.keys(currCanvas).filter(
-      (key) => currCanvas[key] !== nextCanvas[key]
-    );
+  //   let z = Object.keys(currCanvas).filter(
+  //     (key) => currCanvas[key] !== nextCanvas[key]
+  //   );
 
-    if (z.length > 0) {
-      this.updateCanvas(nextCanvas);
-    }
-  }
+  //   if (z.length > 0) {
+  //     this.updateCanvas(nextCanvas);
+  //   }
+  // }
 
   render() {
     return (

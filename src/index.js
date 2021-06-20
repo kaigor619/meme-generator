@@ -5,6 +5,7 @@ import "./index.css";
 import App from "components/App";
 import reportWebVitals from "./reportWebVitals";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import CanvasProvider from "components/CanvasProvider";
 
 import { Provider } from "react-redux";
 import store from "./store";
@@ -12,9 +13,11 @@ import store from "./store";
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <CanvasProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </CanvasProvider>
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")
