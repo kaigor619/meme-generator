@@ -49,103 +49,98 @@ export const getBoxShadow = (style) => {
   return `${shadowOffsetX} ${shadowOffsetY} ${shadowBlur} ${shadowColor}`;
 };
 
-export function createEditableBlock(textNode) {
-  var textPosition = textNode.absolutePosition();
-
-  const canvasCoords = this.canvasNode.getBoundingClientRect();
-
-  // so position of textarea will be the sum of positions above:
-  var areaPosition = {
-    x: canvasCoords.left + textPosition.x,
-    y: canvasCoords.top + textPosition.y,
-  };
-
-  const textarea = document.createElement("div");
-  document.body.appendChild(textarea);
-
-  // apply many styles to match text on canvas as close as possible
-  // remember that text rendering on canvas and on the textarea can be different
-  // and sometimes it is hard to make it 100% the same. But we will try...
-  textarea.setAttribute("contenteditable", true);
-  textarea.value = textNode.text();
-  textarea.style.position = "absolute";
-  textarea.style.top = areaPosition.y + "px";
-  textarea.style.left = areaPosition.x + "px";
-  // textarea.style.width = textNode.width() - textNode.padding() * 2 + "px";
-  // textarea.style.height = textNode.height() - textNode.padding() * 2 + "px";
-  textarea.style.fontSize = textNode.fontSize() + "px";
-  textarea.style.padding = "0px";
-  textarea.style.margin = "0px";
-  textarea.style.background = "none";
-  textarea.style.outline = "none";
-  textarea.style.lineHeight = textNode.lineHeight();
-  textarea.style.fontFamily = textNode.fontFamily();
-  textarea.style.fontStyle = textNode.fontStyle().includes("italic")
-    ? "italic"
-    : "normal";
-  textarea.style.fontWeight = textNode.fontStyle().includes("bold")
-    ? "bold"
-    : "normal";
-  textarea.style.textDecoration = textNode.textDecoration();
-  textarea.style.transformOrigin = "left top";
-  textarea.style.textAlign = textNode.align();
-  textarea.style.color = textNode.fill();
-
+const toPx = (val) => {
+  return val + "px";
+};
+const buildShadowString = (getAttrs) => {
   const {
     shadowEnabled,
     shadowBlur,
     shadowColor,
     shadowOffsetX,
     shadowOffsetY,
-  } = textNode.getAttrs();
+  } = getAttrs();
 
-  textarea.style.textShadow = shadowEnabled
+  const shadowString = shadowEnabled
     ? `${shadowOffsetX} ${shadowOffsetY} ${shadowBlur}px ${shadowColor}`
     : "none";
+
+  return shadowString;
+};
+
+export function createEditableBlock(textNode) {
+  var textPosition = textNode.absolutePosition();
+
+  const canvasCoords = this.canvasNode.getBoundingClientRect();
+
+  const areaPosition = {
+    x: canvasCoords.left + textPosition.x,
+    y: canvasCoords.top + textPosition.y,
+  };
+
+  const textarea = document.createElement("div");
+
+  const {
+    fontSize,
+    lineHeight,
+    fontFamily,
+    fontStyle,
+    textDecoration,
+    align,
+    fill,
+    rotation,
+  } = textNode.getAttrs();
+
+  const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+  const translateY = isFirefox ? 1 + 2 + Math.round(fontSize / 20) : 1;
+  let transform = `translateY(-${translateY})`;
+  transform += rotation ? ` rotateZ(${rotation})` : "";
+
+  textarea.setAttribute("contenteditable", true);
+  textarea.value = textNode.text();
+  textarea.style.position = "fixed";
+  textarea.style.top = toPx(areaPosition.y);
+  textarea.style.left = toPx(areaPosition.x);
+  textarea.style.fontSize = toPx(fontSize);
+  textarea.style.padding = toPx(0);
+  textarea.style.margin = toPx(0);
+  textarea.style.background = "none";
+  textarea.style.outline = "none";
+  textarea.style.lineHeight = lineHeight;
+  textarea.style.fontFamily = fontFamily;
+  textarea.style.fontStyle = fontStyle.includes("italic") ? "italic" : "normal";
+  textarea.style.fontWeight = fontStyle.includes("bold") ? "bold" : "normal";
+  textarea.style.textDecoration = textDecoration;
+  textarea.style.transformOrigin = "left top";
+  textarea.style.textAlign = align;
+  textarea.style.color = fill;
+  textarea.style.textShadow = buildShadowString(textNode.getAttrs);
   textarea.innerText = textNode.text();
-
-  const rotation = textNode.rotation();
-  var transform = "";
-  if (rotation) {
-    transform += "rotateZ(" + rotation + "deg)";
-  }
-
-  var px = 1;
-  // also we need to slightly move textarea on firefox
-  // because it jumps a bit
-  var isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-  if (isFirefox) {
-    px += 2 + Math.round(textNode.fontSize() / 20);
-  }
-  transform += "translateY(-" + px + "px)";
-
   textarea.style.transform = transform;
-
-  // reset height
   textarea.style.height = "auto";
-  // after browsers resized it we can set actual value
-  textarea.style.height = textarea.scrollHeight + 3 + "px";
+  textarea.style.height = textarea.scrollHeight + toPx(3);
+  document.body.appendChild(textarea);
+  textarea.focus();
 
   return textarea;
 }
 
 export const getTextareaWidth = (newWidth, textNode) => {
   if (!newWidth) {
-    // set width for placeholder
     newWidth = textNode.placeholder.length * textNode.fontSize();
   }
   // some extra fixes on different browsers
-  var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  var isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+  const isEdge = document.documentMode || /Edge/.test(navigator.userAgent);
+
   if (isSafari || isFirefox) {
     newWidth = Math.ceil(newWidth);
   }
 
-  var isEdge = document.documentMode || /Edge/.test(navigator.userAgent);
   if (isEdge) {
     newWidth += 1;
   }
-
   return newWidth;
 };
 
@@ -217,11 +212,13 @@ export const createText = (props) => {
  * @param { Function } callback - when img is loaded
  * @returns { Boolean }
  */
-export const centerTextNode = (props) => {
-  const textNode = new Konva.Text({
-    draggable: true,
-    ...props,
+export const createTransformer = (textNode) => {
+  const tr = new Konva.Transformer({
+    rotateEnabled: false,
+    enabledAnchors: [],
+    node: textNode,
+    centeredScaling: false,
   });
 
-  return textNode;
+  return tr;
 };

@@ -32,24 +32,24 @@ class Canvas extends Component {
   elementsState = [];
 
   /* Click on frame */
-  handleClickFrame = () => {
-    this.handleDeleteTransformerExcept();
-    this.props.handleChangeActiveElement("");
-    helper.toggleCanvasEdit(false);
-  };
+  // handleClickFrame = () => {
+  //   this.handleDeleteTransformerExcept();
+  //   this.props.handleChangeActiveElement("");
+  //   helper.toggleCanvasEdit(false);
+  // };
 
   // Delete all transformers except specified id
-  handleDeleteTransformerExcept(id) {
-    this.elementsState
-      .filter((item) => item.type !== ELEMENT_TYPE.background)
-      .forEach((item) => {
-        if (item.id !== id) {
-          item.transformer.hide();
-          item.transformer.enabledAnchors([]);
-          item.layer.draw();
-        }
-      });
-  }
+  // handleDeleteTransformerExcept(id) {
+  //   this.elementsState
+  //     .filter((item) => item.type !== ELEMENT_TYPE.background)
+  //     .forEach((item) => {
+  //       if (item.id !== id) {
+  //         item.transformer.hide();
+  //         item.transformer.enabledAnchors([]);
+  //         item.layer.draw();
+  //       }
+  //     });
+  // }
 
   init = () => {
     const { elements, canvas, canvasOptions } = this.props;
@@ -85,7 +85,7 @@ class Canvas extends Component {
     background.backgroundRect = rect;
     background.layer = layer;
 
-    this.createElements(elements, { isAdd: false });
+    // this.createElements(elements, { isAdd: false });
 
     this.props.changeCanvasAPI({
       stage,
@@ -94,249 +94,229 @@ class Canvas extends Component {
     });
   };
 
-  updateCanvas = (options) => {
-    const { width, height, fill, backgroundImage } = options;
-    const { background } = this;
+  // updateCanvas = (options) => {
+  //   const { width, height, fill, backgroundImage } = options;
+  //   const { background } = this;
 
-    // const canvasContent = document.querySelector(".canvasContent");
-    // if (options.width !== this.props.canvas.width) {
-    //   if (options.width > canvasContent.clientWidth) {
-    //     options.width = canvasContent.clientWidth;
-    //     // let x =
-    //     //   (100 * (options.width - canvasContent.clientWidth)) / options.width;
-    //     // console.log(options.width, canvasContent.clientWidth);
-    //     // options.scaleX = x.toFixed(0) / 100;
-    //   }
-    // }
-    // if (options.height !== this.props.canvas.height) {
-    //   if (options.height > canvasContent.clientHeight) {
-    //     options.height = canvasContent.clientHeight;
-    //     // let x =
-    //     //   (100 * (options.width - canvasContent.clientWidth)) / options.width;
-    //     // console.log(options.width, canvasContent.clientWidth);
-    //     // options.scaleX = x.toFixed(0) / 100;
-    //   }
-    // }
+  //   this.stage.setAttrs(helper.getCanvasConfig(options));
+  //   if (!backgroundImage) {
+  //     background.backgroundRect.setAttrs({ width, height, fill });
+  //     background.backgroundImage.hide();
+  //     return background.layer.draw();
+  //   }
 
-    this.stage.setAttrs(helper.getCanvasConfig(options));
-    if (!backgroundImage) {
-      background.backgroundRect.setAttrs({ width, height, fill });
-      background.backgroundImage.hide();
-      return background.layer.draw();
-    }
+  //   if (this.props.canvas.backgroundImage !== backgroundImage) {
+  //     helper.createImage({ src: backgroundImage, ...options }, (image) => {
+  //       background.backgroundImage.setAttrs({ width, height, image });
+  //       background.backgroundImage.show();
+  //       background.layer.draw();
+  //     });
+  //   } else {
+  //     background.backgroundImage.setAttrs({ width, height });
+  //     background.layer.draw();
+  //   }
+  // };
 
-    if (this.props.canvas.backgroundImage !== backgroundImage) {
-      helper.createImage({ src: backgroundImage, ...options }, (image) => {
-        background.backgroundImage.setAttrs({ width, height, image });
-        background.backgroundImage.show();
-        background.layer.draw();
-      });
-    } else {
-      background.backgroundImage.setAttrs({ width, height });
-      background.layer.draw();
-    }
-  };
+  // createElements = (elements, { isAdd }) => {
+  //   const fontsNames = [];
 
-  createElements = (elements, { isAdd }) => {
-    const fontsNames = [];
+  //   elements.forEach((item) => {
+  //     if (item.type === ELEMENT_TYPE.background) {
+  //       const layer = new Konva.Layer();
 
-    elements.forEach((item) => {
-      if (item.type === ELEMENT_TYPE.background) {
-        const layer = new Konva.Layer();
+  //       layer.on("click", () => {
+  //         this.props.handleChangeActiveElement(item.id);
+  //         helper.toggleCanvasEdit(true);
+  //         this.handleDeleteTransformerExcept();
+  //       });
 
-        layer.on("click", () => {
-          this.props.handleChangeActiveElement(item.id);
-          helper.toggleCanvasEdit(true);
-          this.handleDeleteTransformerExcept();
-        });
+  //       helper.createImage(item, (element) => {
+  //         const { id, type } = item;
+  //         layer.add(element);
+  //         layer.batchDraw();
+  //         this.elementsState.push({ id, type, layer, element });
+  //       });
 
-        helper.createImage(item, (element) => {
-          const { id, type } = item;
-          layer.add(element);
-          layer.batchDraw();
-          this.elementsState.push({ id, type, layer, element });
-        });
+  //       this.stage.add(layer);
+  //     }
+  //     if (item.type === ELEMENT_TYPE.text) {
+  //       const layer = new Konva.Layer();
 
-        this.stage.add(layer);
-      }
-      if (item.type === ELEMENT_TYPE.text) {
-        const layer = new Konva.Layer();
+  //       if (!fontsNames.includes(item.style.fontFamily))
+  //         fontsNames.push(item.style.fontFamily);
 
-        if (!fontsNames.includes(item.style.fontFamily))
-          fontsNames.push(item.style.fontFamily);
+  //       const textNode = helper.createText(item.style);
 
-        const textNode = helper.createText(item.style);
+  //       layer.on("mouseover", () => {
+  //         const element = this.elementsState.find((c) => c.id === item.id);
+  //         if (!element || element.transformer.enabledAnchors().length) return;
+  //         element.transformer.enabledAnchors([]);
+  //         element.transformer.show();
+  //         element.layer.draw();
+  //       });
 
-        layer.on("mouseover", () => {
-          const element = this.elementsState.find((c) => c.id === item.id);
-          if (!element || element.transformer.enabledAnchors().length) return;
-          element.transformer.enabledAnchors([]);
-          element.transformer.show();
-          element.layer.draw();
-        });
+  //       layer.on("mouseout", () => {
+  //         const element = this.elementsState.find((c) => c.id === item.id);
+  //         if (!element || element.transformer.enabledAnchors().length) return;
+  //         element.transformer.hide();
+  //         element.layer.draw();
+  //       });
 
-        layer.on("mouseout", () => {
-          const element = this.elementsState.find((c) => c.id === item.id);
-          if (!element || element.transformer.enabledAnchors().length) return;
-          element.transformer.hide();
-          element.layer.draw();
-        });
+  //       if (isAdd) {
+  //         const stageSizes = this.stage.size();
+  //         const nodeSizes = textNode.size();
 
-        if (isAdd) {
-          const stageSizes = this.stage.size();
-          const nodeSizes = textNode.size();
+  //         textNode.absolutePosition({
+  //           x: stageSizes.width / 2 - nodeSizes.width / 2,
+  //           y: stageSizes.height / 2 - nodeSizes.height / 2,
+  //         });
+  //       }
 
-          textNode.absolutePosition({
-            x: stageSizes.width / 2 - nodeSizes.width / 2,
-            y: stageSizes.height / 2 - nodeSizes.height / 2,
-          });
-        }
+  //       textNode.on("mousedown", (e) => {
+  //         // this.hoverRef.current.style.display = "none";
+  //         this.props.handleChangeActiveElement(item.id);
+  //         helper.toggleCanvasEdit(false);
 
-        textNode.on("mousedown", (e) => {
-          // this.hoverRef.current.style.display = "none";
-          this.props.handleChangeActiveElement(item.id);
-          helper.toggleCanvasEdit(false);
+  //         const searchElement = this.elementsState.find(
+  //           (c) => c.id === item.id
+  //         );
 
-          const searchElement = this.elementsState.find(
-            (c) => c.id === item.id
-          );
+  //         if (searchElement) {
+  //           searchElement.transformer.enabledAnchors([
+  //             "top-left",
+  //             "top-right",
+  //             "bottom-left",
+  //             "bottom-right",
+  //           ]);
+  //           searchElement.transformer.show();
+  //           searchElement.layer.draw();
+  //         }
+  //         this.handleDeleteTransformerExcept(item.id);
+  //       });
+  //       textNode.on("dragend", (e) => {
+  //         const { x, y } = textNode.position();
 
-          if (searchElement) {
-            searchElement.transformer.enabledAnchors([
-              "top-left",
-              "top-right",
-              "bottom-left",
-              "bottom-right",
-            ]);
-            searchElement.transformer.show();
-            searchElement.layer.draw();
-          }
-          this.handleDeleteTransformerExcept(item.id);
-        });
-        textNode.on("dragend", (e) => {
-          const { x, y } = textNode.position();
+  //         const updatedElement = this.props.elements.find(
+  //           (x) => x.id === this.props.activeId
+  //         );
+  //         updatedElement.style = { ...updatedElement.style, x, y };
+  //         this.props.handleUpdateElement(updatedElement.id, updatedElement);
+  //       });
 
-          const updatedElement = this.props.elements.find(
-            (x) => x.id === this.props.activeId
-          );
-          updatedElement.style = { ...updatedElement.style, x, y };
-          this.props.handleUpdateElement(updatedElement.id, updatedElement);
-        });
+  //       textNode.on("transform", function () {
+  //         textNode.setAttrs({
+  //           width: textNode.width() * textNode.scaleX(),
+  //           height: textNode.height() * textNode.scaleY(),
+  //           scaleX: 1,
+  //           scaleY: 1,
+  //         });
+  //       });
 
-        textNode.on("transform", function () {
-          textNode.setAttrs({
-            width: textNode.width() * textNode.scaleX(),
-            height: textNode.height() * textNode.scaleY(),
-            scaleX: 1,
-            scaleY: 1,
-          });
-        });
+  //       layer.add(textNode);
 
-        layer.add(textNode);
+  //       const tr = new Konva.Transformer({
+  //         rotateEnabled: false,
+  //         enabledAnchors: [],
+  //         node: textNode,
+  //         centeredScaling: false,
+  //       });
 
-        const tr = new Konva.Transformer({
-          rotateEnabled: false,
-          enabledAnchors: [],
-          node: textNode,
-          centeredScaling: false,
-        });
+  //       tr.hide();
 
-        tr.hide();
+  //       layer.add(tr);
 
-        layer.add(tr);
+  //       // < Edit Text
+  //       textNode.on("dblclick dbltap", () => {
+  //         // hide text node and transformer:
+  //         textNode.hide();
+  //         tr.hide();
+  //         layer.draw();
 
-        // < Edit Text
-        textNode.on("dblclick dbltap", () => {
-          // hide text node and transformer:
-          textNode.hide();
-          tr.hide();
-          layer.draw();
+  //         const textarea = helper.createEditableBlock.call(this, textNode);
 
-          const textarea = helper.createEditableBlock.call(this, textNode);
+  //         textarea.focus();
+  //         textarea.oninput = (e) => {
+  //           const updatedElement = this.props.elements.find(
+  //             (x) => x.id === this.props.activeId
+  //           );
+  //           updatedElement.style.text = e.target.innerText;
+  //           this.props.handleUpdateElement(updatedElement.id, updatedElement);
+  //         };
 
-          textarea.focus();
-          textarea.oninput = (e) => {
-            const updatedElement = this.props.elements.find(
-              (x) => x.id === this.props.activeId
-            );
-            updatedElement.style.text = e.target.innerText;
-            this.props.handleUpdateElement(updatedElement.id, updatedElement);
-          };
+  //         function removeTextarea() {
+  //           textarea.parentNode.removeChild(textarea);
+  //           window.removeEventListener("click", handleOutsideClick);
+  //           textNode.show();
+  //           tr.show();
+  //           tr.forceUpdate();
+  //           layer.draw();
+  //         }
 
-          function removeTextarea() {
-            textarea.parentNode.removeChild(textarea);
-            window.removeEventListener("click", handleOutsideClick);
-            textNode.show();
-            tr.show();
-            tr.forceUpdate();
-            layer.draw();
-          }
+  //         textarea.addEventListener("keydown", function (e) {
+  //           // hide on enter
+  //           // but don't hide on shift + enter
+  //           if (e.keyCode === 13 && !e.shiftKey) {
+  //             textNode.text(textarea.innerText);
+  //             removeTextarea();
+  //           }
+  //           // on esc do not set value back to node
+  //           if (e.keyCode === 27) {
+  //             removeTextarea();
+  //           }
+  //         });
 
-          textarea.addEventListener("keydown", function (e) {
-            // hide on enter
-            // but don't hide on shift + enter
-            if (e.keyCode === 13 && !e.shiftKey) {
-              textNode.text(textarea.innerText);
-              removeTextarea();
-            }
-            // on esc do not set value back to node
-            if (e.keyCode === 27) {
-              removeTextarea();
-            }
-          });
+  //         textarea.addEventListener("keydown", function (e) {
+  //           const scale = textNode.getAbsoluteScale().x;
+  //           textarea.style.width = helper.getTextareaWidth(
+  //             textNode.width() * scale,
+  //             textNode
+  //           );
+  //           textarea.style.height = "auto";
+  //           textarea.style.height =
+  //             textarea.scrollHeight + textNode.fontSize() + "px";
+  //         });
 
-          textarea.addEventListener("keydown", function (e) {
-            const scale = textNode.getAbsoluteScale().x;
-            textarea.style.width = helper.getTextareaWidth(
-              textNode.width() * scale,
-              textNode
-            );
-            textarea.style.height = "auto";
-            textarea.style.height =
-              textarea.scrollHeight + textNode.fontSize() + "px";
-          });
+  //         function handleOutsideClick(e) {
+  //           if (e.target !== textarea) {
+  //             textNode.text(textarea.innerText);
+  //             removeTextarea();
+  //           }
+  //         }
+  //         setTimeout(() => {
+  //           window.addEventListener("click", handleOutsideClick);
+  //         });
+  //       });
 
-          function handleOutsideClick(e) {
-            if (e.target !== textarea) {
-              textNode.text(textarea.innerText);
-              removeTextarea();
-            }
-          }
-          setTimeout(() => {
-            window.addEventListener("click", handleOutsideClick);
-          });
-        });
+  //       // </ Edit Text
 
-        // </ Edit Text
+  //       this.elementsState.push({
+  //         id: item.id,
+  //         type: item.type,
+  //         layer,
+  //         element: textNode,
+  //         transformer: tr,
+  //       });
+  //       layer.draw();
 
-        this.elementsState.push({
-          id: item.id,
-          type: item.type,
-          layer,
-          element: textNode,
-          transformer: tr,
-        });
-        layer.draw();
+  //       console.log(this.stage);
+  //       // this.stage.add(layer);
 
-        console.log(this.stage);
-        // this.stage.add(layer);
+  //       this.handleDeleteTransformerExcept(item.id);
+  //     }
+  //   });
 
-        this.handleDeleteTransformerExcept(item.id);
-      }
-    });
-
-    fontHelper.addFonts(fontsNames, () => {
-      this.elementsState
-        .filter(
-          (item) =>
-            item.type === ELEMENT_TYPE.text &&
-            fontsNames.includes(item.element.attrs.fontFamily)
-        )
-        .forEach((item) => {
-          item.layer.draw();
-        });
-    });
-  };
+  //   fontHelper.addFonts(fontsNames, () => {
+  //     this.elementsState
+  //       .filter(
+  //         (item) =>
+  //           item.type === ELEMENT_TYPE.text &&
+  //           fontsNames.includes(item.element.attrs.fontFamily)
+  //       )
+  //       .forEach((item) => {
+  //         item.layer.draw();
+  //       });
+  //   });
+  // };
 
   componentDidMount() {
     this.init();
