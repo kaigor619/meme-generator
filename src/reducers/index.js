@@ -17,7 +17,7 @@ export const types = {
 };
 
 const initialState = {
-  activeId: "canvas",
+  activeId: "",
   stage: null,
   modalId: "",
   isReadyCanvas: false,
@@ -74,12 +74,10 @@ export const handleChangeActiveElement = (id) => {
   };
 };
 
-export const handleAddElement = () => (dispatch) => {
-  const id = Date.now().toString();
-
+export const handleAddElement = (data) => (dispatch) => {
   dispatch({
     type: types.ADD_ELEMENT,
-    data: { id, ...TEXT_OPTIONS_TEMPLATE },
+    data: data,
   });
 };
 
@@ -96,10 +94,10 @@ export const handleUpdateStyleElement = (id, data) => (dispatch, getState) => {
   });
 };
 
-export const handleUpdateElement = (id, data) => (dispatch, getState) => {
+export const handleUpdateElement = (data) => (dispatch, getState) => {
   dispatch({
     type: types.UPDATE_ELEMENT,
-    data: { id, ...data },
+    data: data,
   });
 };
 export const handleUpdateCanvas = (data) => (dispatch, getState) => {

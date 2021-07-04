@@ -1,58 +1,39 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { Number, Color } from "components/Form";
+import React, { useMemo, useState, useContext } from "react";
+import { Number, Color, Range } from "components/Form";
 import { connect } from "react-redux";
 import { handleUpdateCanvas } from "reducers";
 import SidebarSection from "components/SidebarSection";
-import { Button } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import * as helper from "utils/helpers";
 import AddBackground from "modals/AddBackground";
 import cls from "classnames";
 import closeIcon from "assets/images/close.svg";
+import CanvasContext from "contexts/canvas-context";
 
 import classes from "./CanvasOptions.module.scss";
 
 const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
   const [isBackgroundModal, setIsBackgroundModal] = useState(false);
-  const [fields, setFields] = useState(canvas);
-
-  useEffect(() => {
-    setFields((state) => ({
-      ...state,
-      width: canvas.width,
-      height: canvas.height,
-    }));
-  }, [canvas]);
-
-  const onChangeSize = ({ target }) => {
-    const { name, value } = target;
-    const modifiedValue = helper.filterStyleValue(name, value);
-    setFields((state) => ({ ...state, [name]: modifiedValue }));
-  };
+  const { canvasAPI } = useContext(CanvasContext);
 
   const onChangeStyle = ({ target }) => {
     const { name, value } = target;
     const modifiedValue = helper.filterStyleValue(name, value);
-    handleUpdate();
-    setFields((state) => ({ ...state, [name]: modifiedValue }));
-  };
 
-  const handleUpdate = () => {
-    handleUpdateCanvas({
-      ...canvas,
-      ...fields,
-    });
+    updateCanvas(name, modifiedValue);
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    handleUpdate();
   };
 
-  const handleDeleteBackground = () => {
-    handleUpdateCanvas({
+  const updateCanvas = (name, value) => {
+    const updatedCanvas = {
       ...canvas,
-      backgroundImage: "",
-    });
+      [name]: value,
+    };
+    handleUpdateCanvas(updatedCanvas);
+    canvasAPI.updateCanvas(updatedCanvas);
   };
 
   return (
@@ -63,18 +44,16 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
             <Number
               name="width"
               label="W"
-              value={fields.width || ""}
-              onBlur={handleUpdate}
-              onChange={onChangeSize}
+              value={canvas.width || ""}
+              onChange={onChangeStyle}
               className={classes.numberInput}
             />
             <Number
               name="height"
               label="H"
-              value={fields?.height || ""}
+              value={canvas?.height || ""}
               className={classes.numberInput}
-              onChange={onChangeSize}
-              onBlur={handleUpdate}
+              onChange={onChangeStyle}
             />
           </div>
           <button type="submit" hidden></button>
@@ -85,7 +64,7 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
         <div className={classes.sectionGrid}>
           <Color
             name="fill"
-            value={fields.fill}
+            value={canvas.fill}
             className={classes.fullRow}
             onChange={onChangeStyle}
           />
@@ -102,7 +81,7 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
               <div className={classes.overlay}>
                 <img
                   src={closeIcon}
-                  onClick={handleDeleteBackground}
+                  onClick={() => updateCanvas("backgroundImage", "")}
                   className={classes.closeImage}
                   alt="close"
                 />

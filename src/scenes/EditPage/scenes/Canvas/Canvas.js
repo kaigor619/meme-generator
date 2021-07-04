@@ -10,22 +10,30 @@ import {
   handleUpdateElement,
 } from "reducers";
 import store from "store";
-import * as konvaService from "services/konva";
 import Konva from "konva";
 import * as helper from "utils/helpers";
 import { FONTS } from "types/fonts";
 import * as fontHelper from "utils/font";
+import EditSize from "./components/EditSize";
 
 import "./Canvas.scss";
 
-const enabledAnchors = [];
+const enabledAnchors = ["top-left", "top-right", "bottom-left", "bottom-right"];
 
 class Canvas extends Component {
   constructor(props) {
     super(props);
     this.hoverRef = React.createRef();
     this.canvasWrapper = React.createRef();
+
+    this._deleteTransformersExcept = this._deleteTransformersExcept.bind(this);
+    this.addElement = this.addElement.bind(this);
+    this.updateCanvas = this.updateCanvas.bind(this);
+    this.updateElement = this.updateElement.bind(this);
   }
+  state = {
+    editSize: false,
+  };
   stage = null;
   background = {
     backgroundRect: null,
@@ -35,11 +43,13 @@ class Canvas extends Component {
   };
   elementsState = [];
 
+  canvasNode = createRef(null);
+  canvasContent = createRef(null);
+
   //  Click on frame
-  _handleClickFrame = () => {
-    this.handleDeleteTransformerExcept();
+  _handleClickFrame = (e) => {
+    this._deleteTransformersExcept();
     this.props.handleChangeActiveElement("");
-    // helper.toggleCanvasEdit(false);
   };
 
   // Delete all transformers except specified id
@@ -54,10 +64,21 @@ class Canvas extends Component {
         }
       });
   }
+  // show transformer by id and delete rest elements
+  _showTransformerById(id) {
+    const findElement = this.elementsState.find((x) => x.id === id);
+
+    if (findElement) {
+      findElement.transformer.enabledAnchors([]);
+      findElement.transformer.show();
+      findElement.layer.draw();
+      this._deleteTransformersExcept(id);
+    }
+  }
 
   // add text element
   _addTextElement(element) {
-    const { elements, activeId } = store.getState();
+    // const { elements, activeId } = store.getState();
     const layer = new Konva.Layer();
 
     // textNode
@@ -68,27 +89,28 @@ class Canvas extends Component {
 
     // layer mouseover
     layer.on("mouseover", () => {
-      const element = this.elementsState.find((c) => c.id === element.id);
-      if (!element || element.transformer.enabledAnchors().length) return;
-      element.transformer.enabledAnchors([]);
-      element.transformer.show();
-      element.layer.draw();
+      if (this.props.activeId === element.id) return;
+      const findElement = this.elementsState.find((c) => c.id === element.id);
+      findElement.transformer.enabledAnchors([]);
+      findElement.transformer.show();
+      findElement.layer.draw();
     });
 
     // layer mouseout
     layer.on("mouseout", () => {
-      const element = this.elementsState.find((c) => c.id === element.id);
-      if (!element || element.transformer.enabledAnchors().length) return;
-      element.transformer.hide();
-      element.layer.draw();
+      if (this.props.activeId === element.id) return;
+      const findElement = this.elementsState.find((c) => c.id === element.id);
+      findElement.transformer.hide();
+      findElement.layer.draw();
     });
 
     // textNode mousedown
     textNode.on("mousedown", (e) => {
       this.props.handleChangeActiveElement(element.id);
-      helper.toggleCanvasEdit(false);
+      // helper.toggleCanvasEdit(false);
+      this._deleteTransformersExcept(element.id);
+
       const searchElement = this.elementsState.find((c) => c.id === element.id);
-      this.handleDeleteTransformerExcept(element.id);
       if (searchElement) {
         searchElement.transformer.enabledAnchors(enabledAnchors);
         searchElement.transformer.show();
@@ -98,21 +120,20 @@ class Canvas extends Component {
 
     // textNode dragend
     textNode.on("dragend", (e) => {
+      const { activeId, elements } = this.props;
       const { x, y } = textNode.position();
       const updatedElement = elements.find((x) => x.id === activeId);
       updatedElement.style = { ...updatedElement.style, x, y };
-      this.props.handleUpdateElement(updatedElement.id, updatedElement);
+      this.props.handleUpdateElement(updatedElement);
     });
 
     // textNode transform
-    textNode.on("transform", function () {
-      const { width, height, scaleX, scaleY } = textNode.getAttrs();
-      textNode.setAttrs({
-        width: width * scaleX,
-        height: height * scaleY,
-        scaleX: 1,
-        scaleY: 1,
-      });
+    textNode.on("transform", () => {
+      const attrs = textNode.getAttrs();
+      const { activeId, elements } = this.props;
+      const updatedElement = elements.find((x) => x.id === activeId);
+      updatedElement.style = { ...updatedElement.style, ...attrs };
+      this.props.handleUpdateElement(updatedElement);
     });
 
     tr.hide();
@@ -123,21 +144,29 @@ class Canvas extends Component {
 
     // textNode editing
     textNode.on("dblclick dbltap", () => {
+      const { elements, activeId } = this.props;
+
+      console.log("tap");
+
       textNode.hide();
       tr.hide();
       layer.draw();
 
-      const textarea = helper.createEditableBlock.call(this, textNode);
+      const textarea = helper.createEditableBlock(
+        textNode,
+        this.canvasNode.current
+      );
 
       textarea.oninput = (e) => {
         const updatedElement = elements.find((x) => x.id === activeId);
         updatedElement.style.text = e.target.innerText;
-        this.props.handleUpdateElement(updatedElement.id, updatedElement);
+        this.props.handleUpdateElement(updatedElement);
       };
 
       // delete textarea
       function removeTextarea() {
-        textarea.parentNode.removeChild(textarea);
+        console.log("remove");
+        document.body.removeChild(textarea);
         window.removeEventListener("click", handleOutsideClick);
         textNode.show();
         tr.show();
@@ -178,9 +207,9 @@ class Canvas extends Component {
         textarea.style.height = "auto";
         textarea.style.height =
           textarea.scrollHeight + textNode.fontSize() + "px";
-      });
 
-      window.addEventListener("click", handleOutsideClick);
+        window.addEventListener("click", handleOutsideClick);
+      });
     });
 
     this.elementsState.push({
@@ -191,7 +220,7 @@ class Canvas extends Component {
       transformer: tr,
     });
 
-    this.handleDeleteTransformerExcept(element.id);
+    this._deleteTransformersExcept(element.id);
   }
 
   // init stage
@@ -202,7 +231,7 @@ class Canvas extends Component {
 
     if (canvas.backgroundImage) {
       helper.createImage(
-        { src: canvas.backgroundImage, ...canvas },
+        { src: canvas.backgroundImage || "", ...canvas },
         (readyImage) => {
           background.backgroundImage = readyImage;
           layer.add(readyImage);
@@ -216,21 +245,13 @@ class Canvas extends Component {
 
     layer.on("click", (e) => {
       this.props.handleChangeActiveElement(canvas.id);
-      // helper.toggleCanvasEdit(true);
-      this._handleDeleteTransformerExcept();
+      this._deleteTransformersExcept();
     });
 
     layer.draw();
     background.backgroundRect = rect;
     background.layer = layer;
     this.stage.add(layer);
-  };
-
-  _initAPI = () => {
-    const getAPI = () => ({ stage, background, elementsState });
-    this.props.changeCanvasAPI({
-      getAPI,
-    });
   };
 
   // init stage
@@ -248,52 +269,169 @@ class Canvas extends Component {
     }
   };
 
+  // create background image with restrictions
+  _createBackgroundImage(backgroundImage, canvas) {
+    const { background, canvasContent } = this;
+
+    const { clientHeight, clientWidth } = canvasContent.current;
+
+    helper.createImage({ src: backgroundImage, ...canvas }, (readyImage) => {
+      const { width, height } = readyImage.size();
+
+      if (height > clientHeight || width > clientWidth) {
+        const kxWidth = width / clientWidth;
+        const kxHeight = height / clientHeight;
+        const kxBasis = kxWidth > kxHeight ? kxWidth : kxHeight;
+
+        if (kxBasis > 1) {
+          let newWidth = width / kxBasis;
+          newWidth = newWidth > clientWidth ? clientWidth : newWidth;
+          let newHeight = height / kxBasis;
+          newHeight = newHeight > clientHeight ? clientHeight : newHeight;
+
+          const updatedCanvas = {
+            ...canvas,
+            width: newWidth,
+            height: newHeight,
+          };
+          readyImage.size({ width: newWidth, height: newHeight });
+          this.stage.setAttrs(helper.getCanvasConfig(updatedCanvas));
+          this.props.handleUpdateCanvas(updatedCanvas);
+        }
+      }
+
+      background.backgroundImage = readyImage;
+      background.layer.add(readyImage);
+      background.layer.batchDraw();
+    });
+  }
+
+  // update canvas size
+  updateCanvasSize = (width, height) => {
+    const { backgroundImage, backgroundRect, layer } = this.background;
+    const { canvas } = this.props;
+
+    this.stage.setAttrs({ width, height });
+
+    if (backgroundImage) {
+      backgroundImage.setAttrs({ width, height });
+    }
+
+    if (backgroundRect) {
+      backgroundRect.setAttrs({ width, height });
+    }
+    layer?.draw();
+
+    const updatedCanvas = {
+      ...canvas,
+      width,
+      height,
+    };
+
+    this.props.handleUpdateCanvas(updatedCanvas);
+  };
   // update canvas
-  updateCanvas = (options) => {
-    const store = store.getState().canvas;
-    const { width, height, fill, backgroundImage } = options;
+  updateCanvas = (canvas) => {
+    const { width, height, fill, backgroundImage } = canvas;
     const { background } = this;
 
-    this.stage.setAttrs(helper.getCanvasConfig(options));
+    this.stage.setAttrs(helper.getCanvasConfig(canvas));
+
     if (!backgroundImage) {
       background.backgroundRect.setAttrs({ width, height, fill });
-      background.backgroundImage.hide();
+      background.backgroundImage?.hide();
       return background.layer.draw();
     }
 
-    if (this.background.backgroundImage !== backgroundImage) {
-      helper.createImage({ src: backgroundImage, ...options }, (image) => {
-        background.backgroundImage.setAttrs({ width, height, image });
-        background.backgroundImage.show();
+    if (backgroundImage) {
+      let a = background.backgroundImage?.getAttrs().image.src || "";
+
+      if (a !== backgroundImage) {
+        this._createBackgroundImage(backgroundImage, canvas);
+      } else {
+        background.backgroundImage.setAttrs({ width, height });
         background.layer.draw();
-      });
-    } else {
-      background.backgroundImage.setAttrs({ width, height });
-      background.layer.draw();
+      }
     }
   };
+
   // update element style
-  updateElement = (id, style) => {};
+  // updateElement = (id, style) => {
+  deleteElement = (id) => {
+    const index = this.elementsState.findIndex((x) => x.id === id);
+    const element = this.elementsState.find((x) => x.id === id);
+    element.layer.destroy();
+    this.elementsState.splice(index, 1);
+  };
+
+  // update element style
+  // updateElement = (id, style) => {
+  updateElement = (updatedElement) => {
+    const element = this.elementsState.find((x) => x.id === updatedElement.id);
+    element.element.setAttrs({ ...updatedElement.style });
+    element.layer.draw();
+  };
+
+  initAPI = () => {
+    const { stage, background, elementsState } = this;
+    const getAPI = () => ({ stage, background, elementsState });
+
+    this.props.changeCanvasAPI({
+      getAPI,
+      deleteTransformers: this._deleteTransformersExcept,
+      addElement: this.addElement,
+      updateCanvas: this.updateCanvas,
+      updateElement: this.updateElement,
+      updateCanvasSize: this.updateCanvasSize,
+      deleteElement: this.deleteElement,
+    });
+  };
 
   componentDidMount() {
     this.initStage();
-    this._initAPI();
+    this._initCanvasBackground();
+    this.initAPI();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { activeId } = this.props;
+
+    if (prevProps.activeId !== activeId) {
+      if (activeId) {
+        this.setState({ editSize: activeId === "canvas" });
+
+        this._showTransformerById(activeId);
+      } else {
+        this._deleteTransformersExcept();
+        this.setState({ editSize: false });
+      }
+    }
   }
 
   render() {
     return (
       <div className="canvasWrapper" ref={this.canvasWrapper}>
-        <div className="canvasFrame" onClick={this.handleClickFrame}></div>
-        <div className="canvasContent">
-          <div className="canvasFrame" onClick={this.handleClickFrame}></div>
+        <div className="canvasFrame" onClick={this._handleClickFrame}></div>
+        <div className="canvasContent" ref={this.canvasContent}>
+          <div className="canvasFrame" onClick={this._handleClickFrame}></div>
           <div className="canvasEditWrap">
-            <div className="canvas-wrapper" id="canvas"></div>
+            <EditSize active={this.state.editSize} isBackgroundImage={true} />
+            <div
+              className="canvas-wrapper"
+              id="canvas"
+              ref={this.canvasNode}
+            ></div>
           </div>
         </div>
       </div>
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  activeId: state.activeId,
+  elements: state.elements,
+});
 
 const mapDispatch = {
   handleUpdateStyleElement,
@@ -303,4 +441,4 @@ const mapDispatch = {
   handleUpdateElement,
 };
 
-export default connect(null, mapDispatch)(Canvas);
+export default connect(mapStateToProps, mapDispatch)(Canvas);

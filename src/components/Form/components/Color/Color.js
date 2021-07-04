@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ChromePicker } from "react-color";
+import { RgbaStringColorPicker } from "react-colorful";
 import cls from "classnames";
 import classes from "./Color.module.scss";
 
@@ -12,8 +12,8 @@ const Color = ({ name, value, className, onChange }) => {
     };
   }, []);
 
-  const handleChange = (color, event) => {
-    onChange({ target: { name, value: color.hex } });
+  const handleChange = (color) => {
+    onChange({ target: { name, value: color } });
   };
 
   const handleClickPicker = (event) => {
@@ -31,7 +31,7 @@ const Color = ({ name, value, className, onChange }) => {
           className={classes.colorPickerWrapper}
           onClick={(e) => e.stopPropagation()}
         >
-          <ChromePicker color={value} onChange={handleChange} />
+          <RgbaStringColorPicker color={value} onChange={handleChange} />
         </div>
       )}
       <div className={classes.color}>

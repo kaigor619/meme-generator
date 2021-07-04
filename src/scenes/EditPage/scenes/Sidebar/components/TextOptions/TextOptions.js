@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo } from "react";
 import {
   Number,
   Select,
@@ -9,10 +9,14 @@ import {
 import SidebarSection from "components/SidebarSection";
 import { Form, Button } from "react-bootstrap";
 import { connect } from "react-redux";
-import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
-import { handleUpdateElement, handleDeleteElement } from "reducers";
+import {
+  handleUpdateElement,
+  handleDeleteElement,
+  handleChangeActiveElement,
+} from "reducers";
 import * as helper from "utils/helpers";
-import { FONTS } from "types/fonts";
+import CanvasContext from "contexts/canvas-context";
+import { addFonts } from "utils/font";
 
 import fontSizeIcon from "assets/images/font-size.svg";
 import lineHeightIcon from "assets/images/line-height.svg";
@@ -27,56 +31,38 @@ const TextOptions = ({
   elements,
   handleUpdateElement,
   handleDeleteElement,
+  handleChangeActiveElement,
 }) => {
-  const [textStyle, setTextStyle] = useState(null);
+  const { canvasAPI } = useContext(CanvasContext);
 
-  useEffect(() => {
-    if (activeId && elements) {
-      const element = elements.find((item) => item.id === activeId);
+  const textStyle = useMemo(() => {
+    const element = elements.find((item) => item.id === activeId);
 
-      console.log(element);
-      element && setTextStyle(element);
-    }
-  }, [activeId, elements.length]);
+    return element?.style || {};
+  }, [activeId, elements]);
 
   const onChangeStyle = ({ target: { name, value } }) => {
-    const modifiedValue = helper.filterStyleValue(name, value);
+    const readyValue = helper.filterStyleValue(name, value);
 
+    const findElement = elements.find((x) => x.id === activeId);
     const updatedElement = {
-      ...textStyle,
-      style: { ...textStyle.style, [name]: modifiedValue },
+      ...findElement,
+      style: { ...textStyle, [name]: readyValue },
     };
 
-    setTextStyle(updatedElement);
-    handleUpdateElement(updatedElement.id, updatedElement);
-  };
-  const onChangeText = ({ target }) => {
-    const updatedElement = { ...textStyle, text: target.value };
-
-    setTextStyle(updatedElement);
-    handleUpdateElement(updatedElement.id, updatedElement);
+    canvasAPI.updateElement(updatedElement);
+    handleUpdateElement(updatedElement);
   };
 
   const handleChangeFontFamily = ({ value, label, url }) => {
-    const head = document.querySelector("head");
-    const links = document.querySelectorAll("link[data-font]");
-
-    const is = [...links].some(
-      (node) => node.getAttribute("data-font") === value
-    );
-
-    if (!is) {
-      const link = document.createElement("link");
-      link.setAttribute("data-font", value);
-      link.rel = "stylesheet";
-      link.href = url;
-      head.appendChild(link);
-      link.onload = () => {
-        onChangeStyle({ target: { name: "fontFamily", value: label } });
-      };
-    } else {
+    addFonts([value], () => {
       onChangeStyle({ target: { name: "fontFamily", value: label } });
-    }
+    });
+  };
+  const handleRemoveElement = () => {
+    handleChangeActiveElement("");
+    canvasAPI.deleteElement(activeId);
+    handleDeleteElement(activeId);
   };
 
   if (!textStyle) return null;
@@ -89,7 +75,7 @@ const TextOptions = ({
           as="textarea"
           rows={2}
           onChange={onChangeStyle}
-          value={textStyle.style.text || ""}
+          value={textStyle.text || ""}
         />
       </SidebarSection>
       <SidebarSection title="Font">
@@ -97,7 +83,7 @@ const TextOptions = ({
           <Select
             options={fontStyleOptions}
             defaultValue={fontStyleOptions.find(
-              (x) => x.label === textStyle.style.fontFamily
+              (x) => x.label === textStyle.fontFamily
             )}
             className={classes.fullRow}
             onChange={handleChangeFontFamily}
@@ -105,13 +91,13 @@ const TextOptions = ({
           <Number
             name="fontSize"
             icon={fontSizeIcon}
-            value={textStyle.style?.fontSize || ""}
+            value={textStyle.fontSize || ""}
             onChange={onChangeStyle}
           />
           <Number
             name="lineHeight"
             icon={lineHeightIcon}
-            value={textStyle.style?.lineHeight || ""}
+            value={textStyle.lineHeight || ""}
             onChange={onChangeStyle}
           />
           <ButtonsCheck
@@ -122,7 +108,7 @@ const TextOptions = ({
           />
           <ButtonsSwitch
             name="align"
-            value={textStyle.style.align}
+            value={textStyle.align}
             options={textAlignOptions}
             onChange={onChangeStyle}
           />
@@ -133,7 +119,7 @@ const TextOptions = ({
         <div className={classes.sectionGrid}>
           <Color
             name="fill"
-            value={textStyle.style.fill}
+            value={textStyle.fill}
             className={classes.fullRow}
             onChange={onChangeStyle}
           />
@@ -146,7 +132,7 @@ const TextOptions = ({
                     target: { name: e.target.name, value: e.target.checked },
                   });
                 }}
-                checked={Boolean(textStyle.style.shadowEnabled)}
+                checked={Boolean(textStyle.shadowEnabled)}
                 type="checkbox"
               />
               <span>Shadow</span>
@@ -156,10 +142,7 @@ const TextOptions = ({
       </SidebarSection>
 
       <div className={classes.btnGroup}>
-        <button
-          className={classes.btnDelete}
-          onClick={() => handleDeleteElement(activeId)}
-        >
+        <button className={classes.btnDelete} onClick={handleRemoveElement}>
           <img src={deleteIcon} alt="Delete" />
           <span>Delete</span>
         </button>
@@ -176,6 +159,7 @@ const mapStateToProps = (state) => ({
 const mapDispatch = {
   handleUpdateElement,
   handleDeleteElement,
+  handleChangeActiveElement,
 };
 
 export default connect(mapStateToProps, mapDispatch)(TextOptions);

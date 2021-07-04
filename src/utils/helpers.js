@@ -1,5 +1,13 @@
-import { STYLE_TYPES, CANVAS_CONFIG } from "types/elements";
+import {
+  STYLE_TYPES,
+  CANVAS_CONFIG,
+  TEXT_OPTIONS_TEMPLATE,
+} from "types/elements";
+import { ELEMENT_TYPE } from "types/constant";
 import Konva from "konva";
+import store from "store";
+
+const getRandomId = () => parseInt(Math.random() * 100000);
 
 export const comparisonStyle = (curr, next) => {
   let diffStyles = [],
@@ -49,17 +57,17 @@ export const getBoxShadow = (style) => {
   return `${shadowOffsetX} ${shadowOffsetY} ${shadowBlur} ${shadowColor}`;
 };
 
-const toPx = (val) => {
+export const toPx = (val) => {
   return val + "px";
 };
-const buildShadowString = (getAttrs) => {
+const buildShadowString = (textNode) => {
   const {
     shadowEnabled,
     shadowBlur,
     shadowColor,
     shadowOffsetX,
     shadowOffsetY,
-  } = getAttrs();
+  } = textNode.getAttrs();
 
   const shadowString = shadowEnabled
     ? `${shadowOffsetX} ${shadowOffsetY} ${shadowBlur}px ${shadowColor}`
@@ -68,10 +76,10 @@ const buildShadowString = (getAttrs) => {
   return shadowString;
 };
 
-export function createEditableBlock(textNode) {
+export function createEditableBlock(textNode, canvasNode) {
   var textPosition = textNode.absolutePosition();
 
-  const canvasCoords = this.canvasNode.getBoundingClientRect();
+  const canvasCoords = canvasNode.getBoundingClientRect();
 
   const areaPosition = {
     x: canvasCoords.left + textPosition.x,
@@ -114,7 +122,7 @@ export function createEditableBlock(textNode) {
   textarea.style.transformOrigin = "left top";
   textarea.style.textAlign = align;
   textarea.style.color = fill;
-  textarea.style.textShadow = buildShadowString(textNode.getAttrs);
+  textarea.style.textShadow = buildShadowString(textNode);
   textarea.innerText = textNode.text();
   textarea.style.transform = transform;
   textarea.style.height = "auto";
@@ -214,11 +222,52 @@ export const createText = (props) => {
  */
 export const createTransformer = (textNode) => {
   const tr = new Konva.Transformer({
-    rotateEnabled: false,
+    rotateEnabled: true,
     enabledAnchors: [],
     node: textNode,
     centeredScaling: false,
   });
 
   return tr;
+};
+/**
+ * add smart text element
+ * @param { Object } props
+ * @param { Function } callback - when img is loaded
+ * @returns { Boolean }
+ */
+export const addTextElement = () => {
+  const { elements, canvas } = store.getState();
+
+  const txtElements = elements.filter((x) => x.type === ELEMENT_TYPE.text);
+
+  const base = txtElements.length
+    ? txtElements[txtElements.length - 1]
+    : TEXT_OPTIONS_TEMPLATE;
+
+  const element = {
+    ...base,
+    style: { ...base.style, x: 0, y: 0 },
+    id: getRandomId(),
+  };
+
+  return element;
+};
+/**
+ * style top, left, right, bottom
+ * @param { Array } array of props
+ * @param { Element } element
+ */
+export const setElementCoords = (element, arr) => {
+  const top = arr[0];
+  const right = arr[1];
+  const bottom = arr[2];
+  const left = arr[3];
+
+  element.style.top = top;
+  element.style.right = right;
+  element.style.bottom = bottom;
+  element.style.left = left;
+
+  return element;
 };

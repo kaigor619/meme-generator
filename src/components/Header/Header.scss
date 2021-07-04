@@ -4,6 +4,9 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 10px 15px;
+  position: relative;
+  z-index: 50;
+  box-shadow: 0 1px 5px 1px #d8d8d8;
 }
 
 .header_logo {

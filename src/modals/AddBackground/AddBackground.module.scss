@@ -3,7 +3,7 @@
 }
 .memeSearch {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   grid-auto-flow: row;
   grid-gap: 15px;
   overflow-y: auto;
@@ -13,15 +13,29 @@
 .memeItem {
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 0 3px 2px #e9e9e9;
+  border-radius: 10px;
 
   & > img {
     width: 100%;
-    height: 150px;
+    height: 200px;
     object-fit: cover;
     transition: transform 0.2s;
   }
   &:hover > img {
     transform: scale(1.1);
   }
+}
+
+.tabsContent {
+  margin-top: 30px;
+  min-height: 500px;
+  position: relative;
+}
+
+.dropzoneWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
 }

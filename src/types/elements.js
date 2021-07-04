@@ -10,13 +10,13 @@ export const TEXT_OPTIONS_TEMPLATE = {
     textDecoration: "",
     fontSize: 40,
     lineHeight: 1,
-    fill: "#fff",
+    fill: "#000",
     shadowColor: "#000",
     shadowOffsetX: 0,
     shadowOffsetY: 0,
     shadowOpacity: 1,
     shadowBlur: 10,
-    shadowEnabled: true,
+    shadowEnabled: false,
   },
 };
 
@@ -42,4 +42,10 @@ export const STYLE_TYPES = {
   scaleY: "number",
 };
 
-export const CANVAS_CONFIG = ["container", "width", "height"];
+export const CANVAS_CONFIG = [
+  "container",
+  "width",
+  "height",
+  "scaleX",
+  "scaleY",
+];

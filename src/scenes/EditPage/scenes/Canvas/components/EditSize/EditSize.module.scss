@@ -6,26 +6,26 @@
   border: 2px solid white;
   position: absolute;
   cursor: pointer;
-  display: none;
-
-  &.tl {
-    left: 0;
-    top: 0;
-    transform: translate(-50%, -50%);
-  }
-  &.tr {
-    right: 0;
-    top: 0;
-    transform: translate(50%, -50%);
-  }
-  &.bl {
-    left: 0;
-    bottom: 0;
-    transform: translate(-50%, 50%);
-  }
-  &.br {
-    right: 0;
-    bottom: 0;
-    transform: translate(50%, 50%);
-  }
+  display: block;
+  z-index: 10;
+}
+.tl {
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+}
+.tr {
+  right: 0;
+  top: 0;
+  transform: translate(50%, -50%);
+}
+.bl {
+  left: 0;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+}
+.br {
+  right: 0;
+  bottom: 0;
+  transform: translate(50%, 50%);
 }

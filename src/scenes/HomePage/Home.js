@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Column } from "react-bootstrap";
 import DropZone from "react-dropzone";
 import { useHistory } from "react-router-dom";
@@ -9,13 +9,51 @@ import { ReactComponent as DownloadIcon } from "assets/images/download.svg";
 import { ReactComponent as ViewIcon } from "assets/images/view.svg";
 import AddBackground from "modals/AddBackground";
 import { BACKGROUND_TYPES } from "types/constant";
+import Lightbox from "react-image-lightbox";
+import "react-image-lightbox/style.css";
 import "./Home.scss";
+import Slider from "react-slick";
+import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
 
 function App() {
   const [images, setImages] = useState(null);
   const [backgroundModal, setBackgroundModal] = useState(false);
+  const [openImage, setOpenImage] = useState("");
   const [fileType, setFileType] = useState(BACKGROUND_TYPES.localFiles);
   const history = useHistory();
+  const { xs, sm, md, lg } = useBreakpoints({
+    xs: { min: 0, max: 600 },
+    sm: { min: 601, max: 960 },
+    md: { min: 961, max: 1400 },
+    lg: { min: 1401, max: null },
+  });
+
+  console.log(xs, sm, md, lg);
+
+  const sliderSettings = useMemo(() => {
+    let slidesToShow = 5;
+    let slidesToScroll = 2;
+    if (md) slidesToShow = 4;
+    if (sm) {
+      slidesToShow = 3;
+      slidesToScroll = 1;
+    }
+
+    if (xs) {
+      slidesToScroll = 1;
+      slidesToShow = 1;
+    }
+
+    return {
+      dots: false,
+      infinite: true,
+      arrows: true,
+      speed: 500,
+      slidesToShow,
+      slidesToScroll,
+      vertical: false,
+    };
+  }, [xs, sm, md, lg]);
 
   useEffect(() => {
     fetchGetMemes().then((data) => {
@@ -23,7 +61,8 @@ function App() {
     });
   }, []);
 
-  const handleSaveImage = async (item) => {
+  const handleSaveImage = async (e, item) => {
+    e.stopPropagation();
     fetch(item.url)
       .then((response) => {
         return response.blob();
@@ -46,16 +85,20 @@ function App() {
     history.push(`${paths.edit}/${item._id}`);
   };
 
+  const handleClickCard = (e, url) => {
+    e.stopPropagation();
+    setOpenImage(url);
+  };
+
   return (
     <div className="app">
       <Container>
         <Row className="justify-content-center">
           <div className="">
-            <div className="text-center mt-5 d-flex align-items-center">
-              <img className="smile_icon" src="smile.svg" alt="" />
+            <div className="text-center mt-5">
               <img className="title_icon" src="title.svg" alt="" />
             </div>
-            <p className="mt-2 text-center fs-3 header_description">
+            <p className="text-center fs-3 header_description">
               Create a meme from JPG, GIF or PNG images. <br /> Edit your image
               and create a meme.
             </p>
@@ -79,7 +122,7 @@ function App() {
                   setBackgroundModal(true);
                 }}
               >
-                <span>Choose a template</span>
+                <span>Choose template</span>
               </button>
             </div>
           </div>
@@ -87,8 +130,21 @@ function App() {
       </Container>
       <div className="memes_slider_wrap">
         <h3 className="memes_slider_title">Our Memes</h3>
+      </div>
 
-        <div className="memes_grid">
+      <AddBackground
+        show={backgroundModal}
+        onHide={() => setBackgroundModal(false)}
+        defaultType={fileType}
+        isCreateMeme
+      />
+
+      {openImage && (
+        <Lightbox mainSrc={openImage} onCloseRequest={() => setOpenImage("")} />
+      )}
+
+      <div className="sliderWrap">
+        <Slider {...sliderSettings}>
           {images?.map((item) => (
             <div key={item._id} className="meme_grid_item_wrap">
               <div className="meme_grid_item">
@@ -105,15 +161,13 @@ function App() {
                     </div>
                     <div
                       className="meme_action_btn"
-                      onClick={() => handleSaveImage(item)}
+                      onClick={(e) => handleSaveImage(e, item)}
                     >
                       <DownloadIcon />
                     </div>
                     <div
                       className="meme_action_btn"
-                      onClick={() => {
-                        window.open(item.url, "_blank");
-                      }}
+                      onClick={(e) => handleClickCard(e, item.url)}
                     >
                       <ViewIcon />
                     </div>
@@ -122,14 +176,8 @@ function App() {
               </div>
             </div>
           ))}
-        </div>
+        </Slider>
       </div>
-      <AddBackground
-        show={backgroundModal}
-        onHide={() => setBackgroundModal(false)}
-        defaultType={fileType}
-        isCreateMeme
-      />
     </div>
   );
 }

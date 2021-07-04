@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Modal from "components/Modal";
 import { useHistory } from "react-router-dom";
 import paths from "types/paths";
@@ -8,6 +8,10 @@ import { handleUpdateCanvas } from "reducers";
 import { Nav } from "react-bootstrap";
 import classes from "./AddBackground.module.scss";
 import { BACKGROUND_TYPES } from "types/constant";
+import CanvasContext from "contexts/canvas-context";
+import Tabs from "components/Tabs";
+import fileIcon from "assets/images/file.svg";
+import pictureIcon from "assets/images/pictures.svg";
 
 export const backgroundTypes = {
   search: "memeSearch",
@@ -26,6 +30,7 @@ const AddBackground = ({
   const [files, setFiles] = useState([]);
   const [type, setType] = useState(defaultType || backgroundTypes.localFiles);
   const history = useHistory();
+  const { canvasAPI } = useContext(CanvasContext);
 
   useEffect(() => {
     if (defaultType && defaultType !== type) {
@@ -39,16 +44,16 @@ const AddBackground = ({
     const url = URL.createObjectURL(e[0]);
 
     img.onload = function () {
-      // alert(this.width + " " + this.height);
-      console.log(this.width + " " + this.height);
-
-      handleUpdateCanvas({
+      const updatedCanvas = {
         ...canvas,
         width: this.width,
         height: this.height,
         backgroundImage: url,
         backgroundFile: e[0],
-      });
+      };
+
+      canvasAPI.updateCanvas(updatedCanvas);
+      handleUpdateCanvas(updatedCanvas);
       if (isCreateMeme) history.push(paths.create);
     };
     img.src = url;
@@ -57,55 +62,56 @@ const AddBackground = ({
   };
 
   const handleUpdateUrl = (item) => {
-    handleUpdateCanvas({
+    const updatedCanvas = {
       ...canvas,
       width: item.width,
       height: item.height,
       backgroundImage: item.url,
       backgroundFile: null,
-    });
+    };
+
+    canvasAPI.updateCanvas(updatedCanvas);
+    handleUpdateCanvas(updatedCanvas);
     onHide();
     if (isCreateMeme) history.push(paths.create);
   };
 
   return (
     <Modal show={show} onHide={onHide} title="Background">
-      <Nav justify variant="tabs" activeKey={type} className={classes.navWrap}>
-        <Nav.Item>
-          <Nav.Link
-            eventKey={backgroundTypes.localFiles}
-            onClick={() => setType(backgroundTypes.localFiles)}
-          >
-            My files
-          </Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link
-            eventKey={backgroundTypes.search}
-            onClick={() => setType(backgroundTypes.search)}
-          >
-            Meme search
-          </Nav.Link>
-        </Nav.Item>
-      </Nav>
+      <Tabs
+        items={[
+          { to: backgroundTypes.localFiles, name: "My files", icon: fileIcon },
+          {
+            to: backgroundTypes.search,
+            name: "Templates",
+            icon: pictureIcon,
+          },
+        ]}
+        selected={type}
+        onChange={(x) => setType(x)}
+      />
 
-      {type === "localFiles" && (
-        <Dropzone handleUpdateFiles={handleUpdateFiles} />
-      )}
+      <div className={classes.tabsContent}>
+        {type === backgroundTypes.localFiles && (
+          <div className={classes.dropzoneWrap}>
+            <Dropzone handleUpdateFiles={handleUpdateFiles} />
+          </div>
+        )}
 
-      {type === "memeSearch" && (
-        <div className={classes.memeSearch}>
-          {memeBackgrounds.map((item) => (
-            <div
-              className={classes.memeItem}
-              key={item.id}
-              onClick={() => handleUpdateUrl(item)}
-            >
-              <img src={item.url} alt="Meme background" />
-            </div>
-          ))}
-        </div>
-      )}
+        {type === backgroundTypes.search && (
+          <div className={classes.memeSearch}>
+            {memeBackgrounds.map((item) => (
+              <div
+                className={classes.memeItem}
+                key={item.id}
+                onClick={() => handleUpdateUrl(item)}
+              >
+                <img src={item.url} alt="Meme background" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </Modal>
   );
 };

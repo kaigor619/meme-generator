@@ -3,6 +3,9 @@
   background-color: #fff;
   border-top: 1px solid silver;
   height: 100%;
+  position: relative;
+  z-index: 20;
+  box-shadow: -1px 0 5px 1px #bcbcbc;
 }
 
 .toolsBarList {

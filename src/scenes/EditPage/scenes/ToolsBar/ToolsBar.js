@@ -1,6 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useContext } from "react";
 import { connect } from "react-redux";
 import { handleAddElement, handleChangeActiveElement } from "reducers";
+import CanvasContext from "contexts/canvas-context";
+import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
+import * as helpers from "utils/helpers";
+import store from "store";
+
 import classes from "./ToolsBar.module.scss";
 
 import textIcon from "./images/text.svg";
@@ -18,12 +23,21 @@ const ToolBarItem = ({ label, icon, action }) => (
 );
 
 const ToolsBar = ({ handleAddElement, handleChangeActiveElement }) => {
+  const { canvasAPI } = useContext(CanvasContext);
+
+  const handleAddTextElement = () => {
+    const element = helpers.addTextElement();
+
+    canvasAPI.addElement(element);
+    handleAddElement(element);
+  };
+
   const toolBarList = useMemo(
     () => [
       {
         label: "Text",
         icon: textIcon,
-        action: () => handleAddElement(),
+        action: handleAddTextElement,
       },
       // {
       //   label: "Image",
@@ -41,7 +55,7 @@ const ToolsBar = ({ handleAddElement, handleChangeActiveElement }) => {
       //   action: () => {},
       // },
     ],
-    [classes]
+    [classes, canvasAPI]
   );
 
   return (
