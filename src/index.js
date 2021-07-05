@@ -11,15 +11,13 @@ import { Provider } from "react-redux";
 import store from "./store";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <CanvasProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </CanvasProvider>
-    </Provider>
-  </React.StrictMode>,
+  <Provider store={store}>
+    <CanvasProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </CanvasProvider>
+  </Provider>,
   document.getElementById("root")
 );
 
