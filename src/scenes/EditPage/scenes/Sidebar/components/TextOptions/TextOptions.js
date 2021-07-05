@@ -55,9 +55,7 @@ const TextOptions = ({
   };
 
   const handleChangeFontFamily = ({ value, label, url }) => {
-    addFonts([value], () => {
-      onChangeStyle({ target: { name: "fontFamily", value: label } });
-    });
+    onChangeStyle({ target: { name: "fontFamily", value: label } });
   };
   const handleRemoveElement = () => {
     handleChangeActiveElement("");

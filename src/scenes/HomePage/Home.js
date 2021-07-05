@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Container, Row, Column } from "react-bootstrap";
-import DropZone from "react-dropzone";
 import { useHistory } from "react-router-dom";
 import paths from "types/paths";
 import { fetchGetMemes } from "api/memesAPI";
@@ -27,8 +26,6 @@ function App() {
     md: { min: 961, max: 1400 },
     lg: { min: 1401, max: null },
   });
-
-  console.log(xs, sm, md, lg);
 
   const sliderSettings = useMemo(() => {
     let slidesToShow = 5;

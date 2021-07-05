@@ -11,7 +11,8 @@ export const addFonts = (fontsNames, callback) => {
         (node) => node.getAttribute("data-font") === value
       );
 
-      const url = FONTS.find((x) => x.label === value)?.url;
+      const font = FONTS.find((x) => x.name === value);
+      const url = font.url;
 
       if (!is) {
         const link = document.createElement("link");
@@ -20,12 +21,12 @@ export const addFonts = (fontsNames, callback) => {
         link.href = url;
         head.appendChild(link);
         link.onload = () => {
-          counter++;
-
-          if (counter === fontsNames.length) {
+          document.fonts.load("16px " + font.label).then((d) => {
             callback(fontsNames);
-          }
+          });
         };
+      } else {
+        callback(fontsNames);
       }
     });
   }

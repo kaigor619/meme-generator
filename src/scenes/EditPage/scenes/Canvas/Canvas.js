@@ -15,6 +15,7 @@ import * as helper from "utils/helpers";
 import { FONTS } from "types/fonts";
 import * as fontHelper from "utils/font";
 import EditSize from "./components/EditSize";
+import { addFonts } from "utils/font";
 
 import "./Canvas.scss";
 
@@ -112,6 +113,7 @@ class Canvas extends Component {
 
       const searchElement = this.elementsState.find((c) => c.id === element.id);
       if (searchElement) {
+        searchElement.transformer.forceUpdate();
         searchElement.transformer.enabledAnchors(enabledAnchors);
         searchElement.transformer.show();
         searchElement.layer.draw();
@@ -145,8 +147,6 @@ class Canvas extends Component {
     // textNode editing
     textNode.on("dblclick dbltap", () => {
       const { elements, activeId } = this.props;
-
-      console.log("tap");
 
       textNode.hide();
       tr.hide();
@@ -364,10 +364,38 @@ class Canvas extends Component {
     this.elementsState.splice(index, 1);
   };
 
+  getDataUrl = () => {
+    this._deleteTransformersExcept();
+    this.props.handleChangeActiveElement("");
+
+    try {
+      const url = this.stage.toDataURL();
+      return url;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   // update element style
   // updateElement = (id, style) => {
   updateElement = (updatedElement) => {
     const element = this.elementsState.find((x) => x.id === updatedElement.id);
+    // Update font family
+    if (element.type === ELEMENT_TYPE.text) {
+      const newFontFamily = updatedElement.style.fontFamily;
+      const prevFontFamily = element.element.fontFamily();
+      if (newFontFamily !== prevFontFamily) {
+        const font = FONTS.find((x) => x.label === newFontFamily);
+        addFonts([font.name], () => {
+          element.element.fontFamily(font.label);
+          element.transformer.forceUpdate();
+          element.layer.draw();
+
+          console.log(element.element.size());
+        });
+      }
+    }
+
     element.element.setAttrs({ ...updatedElement.style });
     element.layer.draw();
   };
@@ -384,6 +412,7 @@ class Canvas extends Component {
       updateElement: this.updateElement,
       updateCanvasSize: this.updateCanvasSize,
       deleteElement: this.deleteElement,
+      getDataUrl: this.getDataUrl,
     });
   };
 

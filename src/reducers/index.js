@@ -17,7 +17,7 @@ export const types = {
 };
 
 const initialState = {
-  activeId: "",
+  activeId: "canvas",
   stage: null,
   modalId: "",
   isReadyCanvas: false,
