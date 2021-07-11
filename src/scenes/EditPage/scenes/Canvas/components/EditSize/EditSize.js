@@ -15,23 +15,24 @@ const EditSize = ({ active, isBackgroundImage }) => {
     const coordsEdit = canvasEdit.getBoundingClientRect();
     const editWidth = canvasEdit.clientWidth;
     const editHeight = canvasEdit.clientHeight;
+    const scale = canvasAPI.getScale();
 
     const minWidth = 200;
     const minHeight = 200;
+    const maxWidth = 5000;
+    const maxHeight = 5000;
 
     const styleTop = (canvasContent.clientHeight - editHeight) / 2;
     const styleLeft = (canvasContent.clientWidth - editWidth) / 2;
 
-    let calcWidth = 0;
-    let calcHeight = 0;
+    let calcWidth = coordsEdit.width;
+    let calcHeight = coordsEdit.height;
 
     document.onmousemove = (e) => {
       const type = item.getAttribute("data-dot");
       const { clientX, clientY } = e;
       let newWidth, newHeight;
       canvasEdit.style.transform = "none";
-      const prevWidth = canvasEdit.clientWidth;
-      const prevHeight = canvasEdit.clientHeight;
 
       if (type === "tr") {
         setElementCoords(canvasEdit, [
@@ -41,8 +42,8 @@ const EditSize = ({ active, isBackgroundImage }) => {
           toPx(styleLeft),
         ]);
 
-        newWidth = clientX - coordsEdit.left;
-        newHeight = coordsEdit.bottom - clientY;
+        newWidth = (clientX - coordsEdit.left) / scale;
+        newHeight = (coordsEdit.bottom - clientY) / scale;
       } else if (type === "br") {
         setElementCoords(canvasEdit, [
           toPx(styleTop),
@@ -51,8 +52,8 @@ const EditSize = ({ active, isBackgroundImage }) => {
           toPx(styleLeft),
         ]);
 
-        newWidth = clientX - coordsEdit.left;
-        newHeight = clientY - coordsEdit.top;
+        newWidth = (clientX - coordsEdit.left) / scale;
+        newHeight = (clientY - coordsEdit.top) / scale;
       } else if (type === "bl") {
         setElementCoords(canvasEdit, [
           toPx(styleTop),
@@ -61,8 +62,8 @@ const EditSize = ({ active, isBackgroundImage }) => {
           "auto",
         ]);
 
-        newWidth = coordsEdit.right - clientX;
-        newHeight = clientY - coordsEdit.top;
+        newWidth = (coordsEdit.right - clientX) / scale;
+        newHeight = (clientY - coordsEdit.top) / scale;
       } else if (type === "tl") {
         setElementCoords(canvasEdit, [
           "auto",
@@ -71,32 +72,20 @@ const EditSize = ({ active, isBackgroundImage }) => {
           "auto",
         ]);
 
-        newWidth = coordsEdit.right - clientX;
-        newHeight = coordsEdit.bottom - clientY;
+        newWidth = (coordsEdit.right - clientX) / scale;
+        newHeight = (coordsEdit.bottom - clientY) / scale;
       }
 
       calcWidth = +parseInt(newWidth <= minWidth ? minWidth : newWidth);
       calcHeight = +parseInt(newHeight <= minHeight ? minHeight : newHeight);
 
-      if (isBackgroundImage) {
-        let k =
-          (prevWidth > prevHeight ? prevWidth : prevHeight) /
-          (prevWidth < prevHeight ? prevWidth : prevHeight);
-
-        let diffW = Math.abs(calcWidth - prevWidth);
-        let diffH = Math.abs(calcHeight - prevHeight);
-
-        if (diffW > diffH) {
-          if (prevWidth > prevHeight) {
-            console.log(calcWidth, k);
-            // calcHeight = +parseInt(calcWidth / k);
-          }
-        }
-      }
+      calcWidth = newWidth > maxWidth ? maxWidth : newWidth;
+      calcHeight = newHeight > maxHeight ? maxHeight : newHeight;
 
       canvasAPI.updateCanvasSize(calcWidth, calcHeight);
     };
     document.onmouseup = (e) => {
+      console.log(canvasContent.clientWidth);
       document.onmousemove = false;
       canvasEdit.style.inset = "auto";
       canvasEdit.style.bottom = "auto";
@@ -105,10 +94,11 @@ const EditSize = ({ active, isBackgroundImage }) => {
       canvasEdit.style.left = "50%";
       canvasEdit.style.transform = "translate(-50%, -50%)";
 
-      const { clientHeight, clientWidth } = canvasContent;
-      calcWidth = calcWidth > clientWidth ? clientWidth : calcWidth;
-      calcHeight = calcHeight > clientHeight ? clientHeight : calcHeight;
-      canvasAPI.updateCanvasSize(+parseInt(calcWidth), +parseInt(calcHeight));
+      canvasAPI.updateCanvasSize(
+        +parseInt(calcWidth),
+        +parseInt(calcHeight),
+        true
+      );
     };
   };
 

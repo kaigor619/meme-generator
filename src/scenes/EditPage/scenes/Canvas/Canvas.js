@@ -43,9 +43,11 @@ class Canvas extends Component {
     layer: null,
   };
   elementsState = [];
+  scale = 1;
 
   canvasNode = createRef(null);
   canvasContent = createRef(null);
+  editRef = createRef(null);
 
   //  Click on frame
   _handleClickFrame = (e) => {
@@ -145,7 +147,8 @@ class Canvas extends Component {
     this.stage.add(layer);
 
     // textNode editing
-    textNode.on("dblclick dbltap", () => {
+    textNode.on("dblclick dbltap", (evt) => {
+      let count = 0;
       const { elements, activeId } = this.props;
 
       textNode.hide();
@@ -165,7 +168,6 @@ class Canvas extends Component {
 
       // delete textarea
       function removeTextarea() {
-        console.log("remove");
         document.body.removeChild(textarea);
         window.removeEventListener("click", handleOutsideClick);
         textNode.show();
@@ -176,10 +178,11 @@ class Canvas extends Component {
 
       // outside click
       function handleOutsideClick(e) {
-        if (e.target !== textarea) {
+        if (count && e.target !== textarea) {
           textNode.text(textarea.innerText);
           removeTextarea();
         }
+        count++;
       }
 
       // textarea keydown
@@ -207,9 +210,8 @@ class Canvas extends Component {
         textarea.style.height = "auto";
         textarea.style.height =
           textarea.scrollHeight + textNode.fontSize() + "px";
-
-        window.addEventListener("click", handleOutsideClick);
       });
+      window.addEventListener("click", handleOutsideClick);
     });
 
     this.elementsState.push({
@@ -257,8 +259,11 @@ class Canvas extends Component {
   // init stage
   initStage() {
     const { canvas, canvasOptions } = store.getState();
-    const config = helper.getCanvasConfig({ ...canvas, ...canvasOptions });
-    const stage = new Konva.Stage({ ...config });
+    const config = helper.getCanvasConfig({
+      ...canvas,
+      ...canvasOptions,
+    });
+    const stage = new Konva.Stage({ ...config, container: "canvas" });
 
     this.stage = stage;
   }
@@ -307,9 +312,36 @@ class Canvas extends Component {
   }
 
   // update canvas size
-  updateCanvasSize = (width, height) => {
+  updateCanvasSize = (width, height, isScale) => {
     const { backgroundImage, backgroundRect, layer } = this.background;
     const { canvas } = this.props;
+    const canvasNode = this.canvasNode.current;
+    const konvaCanvas = document.querySelector(".konvajs-content");
+
+    if (isScale) {
+      let { clientHeight, clientWidth } = this.canvasContent.current;
+      let scaleW = 1;
+      let scaleH = 1;
+
+      if (width > clientWidth) {
+        scaleW = (100 * clientWidth) / width / 100;
+      }
+
+      if (height > clientHeight) {
+        scaleH = (100 * clientHeight) / height / 100;
+      }
+
+      let scale = scaleW < scaleH ? scaleW : scaleH;
+
+      scale = Number(scale).toFixed(4);
+      this.scale = scale;
+      konvaCanvas.style.transform = `scale(${scale})`;
+
+      // width = width > clientWidth ? clientWidth : width;
+      // height = height > clientHeight ? clientHeight : height;
+    }
+
+    const editRef = this.editRef.current;
 
     this.stage.setAttrs({ width, height });
 
@@ -329,7 +361,13 @@ class Canvas extends Component {
     };
 
     this.props.handleUpdateCanvas(updatedCanvas);
+
+    const options = konvaCanvas.getBoundingClientRect();
+
+    editRef.style.width = options.width + "px";
+    editRef.style.height = options.height + "px";
   };
+
   // update canvas
   updateCanvas = (canvas) => {
     const { width, height, fill, backgroundImage } = canvas;
@@ -401,8 +439,8 @@ class Canvas extends Component {
   };
 
   initAPI = () => {
-    const { stage, background, elementsState } = this;
-    const getAPI = () => ({ stage, background, elementsState });
+    const { stage, background, elementsState, scale } = this;
+    const getAPI = () => ({ stage, background, elementsState, scale });
 
     this.props.changeCanvasAPI({
       getAPI,
@@ -413,6 +451,7 @@ class Canvas extends Component {
       updateCanvasSize: this.updateCanvasSize,
       deleteElement: this.deleteElement,
       getDataUrl: this.getDataUrl,
+      getScale: () => this.scale,
     });
   };
 
@@ -428,12 +467,14 @@ class Canvas extends Component {
     if (prevProps.activeId !== activeId) {
       if (activeId) {
         this.setState({ editSize: activeId === "canvas" });
-
         this._showTransformerById(activeId);
       } else {
         this._deleteTransformersExcept();
         this.setState({ editSize: false });
       }
+    }
+    if (activeId === "canvas" && !this.state.editSize) {
+      this.setState({ editSize: true });
     }
   }
 
@@ -443,7 +484,7 @@ class Canvas extends Component {
         <div className="canvasFrame" onClick={this._handleClickFrame}></div>
         <div className="canvasContent" ref={this.canvasContent}>
           <div className="canvasFrame" onClick={this._handleClickFrame}></div>
-          <div className="canvasEditWrap">
+          <div className="canvasEditWrap" ref={this.editRef}>
             <EditSize active={this.state.editSize} isBackgroundImage={true} />
             <div
               className="canvas-wrapper"

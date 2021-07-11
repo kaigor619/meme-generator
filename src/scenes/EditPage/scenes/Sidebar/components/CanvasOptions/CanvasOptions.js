@@ -23,6 +23,22 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
     updateCanvas(name, modifiedValue);
   };
 
+  const onChangeSizes = ({ target }) => {
+    const { name, value } = target;
+    const modifiedValue = helper.filterStyleValue(name, value);
+
+    const updatedCanvas = {
+      ...canvas,
+      [name]: modifiedValue,
+    };
+
+    handleUpdateCanvas(updatedCanvas);
+
+    const width = name === "width" ? modifiedValue : canvas.width;
+    const height = name === "height" ? modifiedValue : canvas.height;
+    canvasAPI.updateCanvasSize(width, height, true);
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
   };
@@ -45,7 +61,7 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
               name="width"
               label="W"
               value={canvas.width || ""}
-              onChange={onChangeStyle}
+              onChange={onChangeSizes}
               className={classes.numberInput}
             />
             <Number
@@ -53,7 +69,7 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
               label="H"
               value={canvas?.height || ""}
               className={classes.numberInput}
-              onChange={onChangeStyle}
+              onChange={onChangeSizes}
             />
           </div>
           <button type="submit" hidden></button>

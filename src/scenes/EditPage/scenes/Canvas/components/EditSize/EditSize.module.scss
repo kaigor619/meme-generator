@@ -29,3 +29,8 @@
   bottom: 0;
   transform: translate(50%, 50%);
 }
+
+.canvasEditWrap {
+  position: fixed;
+  z-index: 5;
+}
