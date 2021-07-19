@@ -245,6 +245,8 @@ export const addTextElement = () => {
     ? txtElements[txtElements.length - 1]
     : TEXT_OPTIONS_TEMPLATE;
 
+  base.style.text = "SAMPLE TEXT";
+
   const element = {
     ...base,
     style: { ...base.style, x: 0, y: 0 },

@@ -10,8 +10,8 @@ import Canvas from "./scenes/Canvas";
 import ToolsBar from "./scenes/ToolsBar";
 import OfflineError from "components/OfflineError";
 import CanvasContext from "contexts/canvas-context";
-
 import classes from "./EditPage.module.scss";
+import "react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css";
 
 const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
   const { memeId } = useParams();

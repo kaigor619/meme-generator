@@ -25,6 +25,8 @@
 
 .colorPicker {
   width: 40px;
+  max-width: 40px;
+  height: 38px;
   flex: 1 0 40px;
   cursor: pointer;
   border: 1px solid #dadada;

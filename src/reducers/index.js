@@ -119,6 +119,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         elements: [...state.elements, action.data],
+        activeId: action.data.id,
       };
     }
     case types.CLEAR_STATE: {

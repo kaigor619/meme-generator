@@ -16,8 +16,7 @@ import {
 } from "reducers";
 import * as helper from "utils/helpers";
 import CanvasContext from "contexts/canvas-context";
-import { addFonts } from "utils/font";
-
+import RangeSlider from "react-bootstrap-range-slider";
 import fontSizeIcon from "assets/images/font-size.svg";
 import lineHeightIcon from "assets/images/line-height.svg";
 import deleteIcon from "assets/images/delete.svg";
@@ -121,6 +120,11 @@ const TextOptions = ({
             className={classes.fullRow}
             onChange={onChangeStyle}
           />
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="Shadow">
+        <div className={classes.sectionGrid}>
           <div className={classes.shadowSection}>
             <label className={classes.shadowLabel}>
               <input
@@ -133,9 +137,24 @@ const TextOptions = ({
                 checked={Boolean(textStyle.shadowEnabled)}
                 type="checkbox"
               />
-              <span>Shadow</span>
+              <span>Enable</span>
             </label>
+            <RangeSlider
+              name="shadowBlur"
+              value={textStyle.shadowBlur}
+              onChange={(e) =>
+                onChangeStyle({
+                  target: { name: "shadowBlur", value: e.target.value },
+                })
+              }
+            />
           </div>
+          <Color
+            name="shadowColor"
+            value={textStyle.shadowColor}
+            className={classes.fullRow}
+            onChange={onChangeStyle}
+          />
         </div>
       </SidebarSection>
 

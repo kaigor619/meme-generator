@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import Modal from "components/Modal";
 import { Form, Button } from "react-bootstrap";
 import paths from "types/paths";
@@ -12,20 +12,20 @@ import store from "store";
 import downloadIcon from "assets/images/download1.svg";
 import { fetchCreateMeme } from "api/memesAPI";
 import { Spinner } from "react-bootstrap";
-
-import { BACKGROUND_TYPES } from "types/constant";
+import CanvasContext from "contexts/canvas-context";
 
 const Export = ({ show, onHide }) => {
   const [name, setName] = useState();
   const [isRequestSave, setIsRequestSave] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const stage = useSelector((state) => state.stage);
+  const { canvasAPI } = useContext(CanvasContext);
 
   const handleSaveTemplate = async (e) => {
     if (!name) return;
     const { canvas, elements } = store.getState();
 
-    const dataURL = stage.toDataURL();
+    const dataURL = canvasAPI.getDataUrl();
+
     const res = await fetch(dataURL);
     const blob = await res.blob();
 
@@ -60,7 +60,7 @@ const Export = ({ show, onHide }) => {
   };
 
   const handleDownloadImage = () => {
-    const dataURL = stage.toDataURL();
+    const dataURL = canvasAPI.getDataUrl();
 
     const downloadLink = document.createElement("a");
     downloadLink.download = name || "meme";

@@ -3,7 +3,7 @@ import { RgbaStringColorPicker } from "react-colorful";
 import cls from "classnames";
 import classes from "./Color.module.scss";
 
-const Color = ({ name, value, className, onChange }) => {
+const Color = ({ name, value, className, disableInput, onChange }) => {
   const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
@@ -41,9 +41,11 @@ const Color = ({ name, value, className, onChange }) => {
             className={classes.colorPicker}
             onClick={handleClickPicker}
           />
-          <div className={classes.colorLabel}>
-            <input id={name} name={name} value={value} onChange={onChange} />
-          </div>
+          {!disableInput && (
+            <div className={classes.colorLabel}>
+              <input id={name} name={name} value={value} onChange={onChange} />
+            </div>
+          )}
         </div>
       </div>
     </div>

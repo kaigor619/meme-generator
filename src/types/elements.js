@@ -42,10 +42,4 @@ export const STYLE_TYPES = {
   scaleY: "number",
 };
 
-export const CANVAS_CONFIG = [
-  "container",
-  "width",
-  "height",
-  "scaleX",
-  "scaleY",
-];
+export const CANVAS_CONFIG = ["width", "height", "container"];

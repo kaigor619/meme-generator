@@ -82,6 +82,14 @@ const EditSize = ({ active, isBackgroundImage }) => {
       calcWidth = newWidth > maxWidth ? maxWidth : newWidth;
       calcHeight = newHeight > maxHeight ? maxHeight : newHeight;
 
+      if (isBackgroundImage) {
+        let k =
+          (editWidth > editHeight ? editWidth : editHeight) /
+          (editWidth < editHeight ? editWidth : editHeight);
+
+        calcHeight = +parseInt(calcWidth / k);
+      }
+
       canvasAPI.updateCanvasSize(calcWidth, calcHeight);
     };
     document.onmouseup = (e) => {

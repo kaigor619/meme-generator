@@ -34,6 +34,7 @@ class Canvas extends Component {
   }
   state = {
     editSize: false,
+    isBackgroundImage: false,
   };
   stage = null;
   background = {
@@ -254,7 +255,17 @@ class Canvas extends Component {
     background.backgroundRect = rect;
     background.layer = layer;
     this.stage.add(layer);
+
+    if (canvas.backgroundImage) {
+      this.setState((state) => ({ ...state, isBackgroundImage: true }));
+    }
   };
+
+  _initElements() {
+    const { elements } = this.props;
+
+    elements.forEach((x) => this.addElement(x));
+  }
 
   // init stage
   initStage() {
@@ -386,6 +397,7 @@ class Canvas extends Component {
 
       if (a !== backgroundImage) {
         this._createBackgroundImage(backgroundImage, canvas);
+        this.setState({ ...this.state, isBackgroundImage: true });
       } else {
         background.backgroundImage.setAttrs({ width, height });
         background.layer.draw();
@@ -458,6 +470,7 @@ class Canvas extends Component {
   componentDidMount() {
     this.initStage();
     this._initCanvasBackground();
+    this._initElements();
     this.initAPI();
   }
 
@@ -485,7 +498,10 @@ class Canvas extends Component {
         <div className="canvasContent" ref={this.canvasContent}>
           <div className="canvasFrame" onClick={this._handleClickFrame}></div>
           <div className="canvasEditWrap" ref={this.editRef}>
-            <EditSize active={this.state.editSize} isBackgroundImage={true} />
+            <EditSize
+              active={this.state.editSize}
+              isBackgroundImage={this.state.isBackgroundImage}
+            />
             <div
               className="canvas-wrapper"
               id="canvas"
@@ -501,6 +517,7 @@ class Canvas extends Component {
 const mapStateToProps = (state) => ({
   activeId: state.activeId,
   elements: state.elements,
+  canvas: state.canvas,
 });
 
 const mapDispatch = {
