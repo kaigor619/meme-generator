@@ -12,12 +12,18 @@ import OfflineError from "components/OfflineError";
 import CanvasContext from "contexts/canvas-context";
 import classes from "./EditPage.module.scss";
 import "react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css";
+import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
+import { Button } from "react-bootstrap";
 
 const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
   const { memeId } = useParams();
   const [loading, setLoading] = useState(Boolean(memeId));
   const [error, setError] = useState(false);
   const canvasAPI = useContext(CanvasContext);
+
+  const { xs } = useBreakpoints({
+    xs: { min: 0, max: 768 },
+  });
 
   useEffect(() => {
     if (memeId) {
@@ -60,9 +66,16 @@ const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
           <ToolsBar />
         </div>
         <Canvas {...canvasAPI} />
-        <div className={classes.sidebarWrapper}>
-          <Sidebar />
-        </div>
+
+        {xs ? (
+          <div className={classes.mobileSidebar}>
+            <Button>Edit</Button>
+          </div>
+        ) : (
+          <div className={classes.sidebarWrapper}>
+            <Sidebar />
+          </div>
+        )}
       </div>
     </div>
   );

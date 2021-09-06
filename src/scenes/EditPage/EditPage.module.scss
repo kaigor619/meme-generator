@@ -10,6 +10,9 @@
 .editRow {
   display: flex;
   flex: 1 1 100%;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+  }
 }
 
 .canvasWrapper {
@@ -38,5 +41,14 @@
     width: 4rem;
     height: 4rem;
     border-width: 0.4rem;
+  }
+}
+
+.mobileSidebar {
+  background-color: #fff;
+  padding: 10px;
+  text-align: center;
+  & > button {
+    width: 100%;
   }
 }
