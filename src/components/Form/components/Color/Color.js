@@ -11,10 +11,10 @@ const Color = ({ name, value, className, disableInput, onChange }) => {
       setShowPicker(false);
     }
 
-    window.addEventListener("mousedown", listener);
+    window.addEventListener("click", listener);
 
     return () => {
-      window.removeEventListener("mousedown", listener);
+      window.removeEventListener("click", listener);
     };
   }, []);
 
