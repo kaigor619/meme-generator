@@ -1,13 +1,11 @@
-import React, { useMemo, useState, useContext } from "react";
-import { Number, Color, Range } from "components/Form";
+import React, { useState, useContext } from "react";
+import { Number, Color } from "components/Form";
 import { connect } from "react-redux";
 import { handleUpdateCanvas } from "reducers";
 import SidebarSection from "components/SidebarSection";
 import { Button, Form } from "react-bootstrap";
 import * as helper from "utils/helpers";
 import AddBackground from "modals/AddBackground";
-import cls from "classnames";
-import closeIcon from "assets/images/close.svg";
 import CanvasContext from "contexts/canvas-context";
 
 import classes from "./CanvasOptions.module.scss";
@@ -24,7 +22,10 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
   };
 
   const onChangeSizes = ({ target }) => {
-    const { name, value } = target;
+    let { name, value } = target;
+
+    if (value > 5000) value = 5000;
+
     const modifiedValue = helper.filterStyleValue(name, value);
 
     const updatedCanvas = {
@@ -36,7 +37,8 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
 
     const width = name === "width" ? modifiedValue : canvas.width;
     const height = name === "height" ? modifiedValue : canvas.height;
-    canvasAPI.updateCanvasSize(width, height, true);
+    const obj = canvasAPI.updateCanvasSize(width, height, true);
+    handleUpdateCanvas({ ...canvas, ...obj });
   };
 
   const onSubmit = (e) => {
@@ -93,22 +95,13 @@ const CanvasOptions = ({ canvas, handleUpdateCanvas }) => {
               Add Background Image
             </Button>
           ) : (
-            <div className={cls(classes.fullRow, classes.image)}>
-              <div className={classes.overlay}>
-                <img
-                  src={closeIcon}
-                  onClick={() => updateCanvas("backgroundImage", "")}
-                  className={classes.closeImage}
-                  alt="close"
-                />
-                <p onClick={() => setIsBackgroundModal(true)}>Change</p>
-              </div>
-              <img
-                src={canvas.backgroundImage}
-                className={classes.backgroundImage}
-                alt=""
-              />
-            </div>
+            <Button
+              variant="danger"
+              className={classes.fullRow}
+              onClick={() => updateCanvas("backgroundImage", "")}
+            >
+              Delete Background Image
+            </Button>
           )}
 
           <AddBackground

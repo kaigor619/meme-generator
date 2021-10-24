@@ -1,12 +1,23 @@
 import React, { useContext } from "react";
+import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
 import cls from "classnames";
 import { setElementCoords, toPx } from "utils/helpers";
 import classes from "./EditSize.module.scss";
 import CanvasContext from "contexts/canvas-context";
+import { handleUpdateCanvas } from "reducers";
 import { connect } from "react-redux";
 
-const EditSize = ({ active, isBackgroundImage }) => {
+const EditSize = ({
+  canvas,
+  active,
+  isBackgroundImage,
+  handleUpdateCanvas,
+}) => {
   const { canvasAPI } = useContext(CanvasContext);
+
+  const { xs } = useBreakpoints({
+    xs: { min: 0, max: 768 },
+  });
 
   const onMouseDown = (e) => {
     const item = e.target;
@@ -17,8 +28,8 @@ const EditSize = ({ active, isBackgroundImage }) => {
     const editHeight = canvasEdit.clientHeight;
     const scale = canvasAPI.getScale();
 
-    const minWidth = 200;
-    const minHeight = 200;
+    const minWidth = 100;
+    const minHeight = 100;
     const maxWidth = 5000;
     const maxHeight = 5000;
 
@@ -28,9 +39,23 @@ const EditSize = ({ active, isBackgroundImage }) => {
     let calcWidth = coordsEdit.width;
     let calcHeight = coordsEdit.height;
 
-    document.onmousemove = (e) => {
+    const moveType = xs ? "touchmove" : "mousemove";
+    const endType = xs ? "touchend" : "mouseup";
+
+    function listenerMove(e) {
+      let clientX,
+        clientY = 0;
+
+      if (xs) {
+        const changedTouches = e.changedTouches[0];
+        clientX = changedTouches.clientX;
+        clientY = changedTouches.clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+
       const type = item.getAttribute("data-dot");
-      const { clientX, clientY } = e;
       let newWidth, newHeight;
       canvasEdit.style.transform = "none";
 
@@ -79,8 +104,8 @@ const EditSize = ({ active, isBackgroundImage }) => {
       calcWidth = +parseInt(newWidth <= minWidth ? minWidth : newWidth);
       calcHeight = +parseInt(newHeight <= minHeight ? minHeight : newHeight);
 
-      calcWidth = newWidth > maxWidth ? maxWidth : newWidth;
-      calcHeight = newHeight > maxHeight ? maxHeight : newHeight;
+      calcWidth = newWidth > maxWidth ? maxWidth : calcWidth;
+      calcHeight = newHeight > maxHeight ? maxHeight : calcHeight;
 
       if (isBackgroundImage) {
         let k =
@@ -88,13 +113,21 @@ const EditSize = ({ active, isBackgroundImage }) => {
           (editWidth < editHeight ? editWidth : editHeight);
 
         calcHeight = +parseInt(calcWidth / k);
+
+        if (editHeight > editWidth) {
+          calcHeight = +parseInt(calcWidth * k);
+        }
       }
 
-      canvasAPI.updateCanvasSize(calcWidth, calcHeight);
-    };
-    document.onmouseup = (e) => {
-      console.log(canvasContent.clientWidth);
-      document.onmousemove = false;
+      const { width, height } = canvasAPI.updateCanvasSize(
+        calcWidth,
+        calcHeight
+      );
+      handleUpdateCanvas({ ...canvas, width, height });
+    }
+
+    function listenerEnd(e) {
+      window.removeEventListener(moveType, listenerMove);
       canvasEdit.style.inset = "auto";
       canvasEdit.style.bottom = "auto";
       canvasEdit.style.right = "auto";
@@ -102,12 +135,17 @@ const EditSize = ({ active, isBackgroundImage }) => {
       canvasEdit.style.left = "50%";
       canvasEdit.style.transform = "translate(-50%, -50%)";
 
-      canvasAPI.updateCanvasSize(
+      const { width, height } = canvasAPI.updateCanvasSize(
         +parseInt(calcWidth),
         +parseInt(calcHeight),
         true
       );
-    };
+
+      handleUpdateCanvas({ ...canvas, width, height });
+    }
+
+    window.addEventListener(moveType, listenerMove);
+    document.addEventListener(endType, listenerEnd, { once: true });
   };
 
   if (!active) return null;
@@ -118,26 +156,36 @@ const EditSize = ({ active, isBackgroundImage }) => {
         className={cls(classes.editCircle, classes.tl)}
         data-dot="tl"
         onMouseDown={onMouseDown}
+        onTouchStart={onMouseDown}
       />
       <div
         className={cls(classes.editCircle, classes.tr)}
         data-dot="tr"
         onMouseDown={onMouseDown}
+        onTouchStart={onMouseDown}
       />
       <div
         className={cls(classes.editCircle, classes.bl)}
         data-dot="bl"
         onMouseDown={onMouseDown}
+        onTouchStart={onMouseDown}
       />
       <div
         className={cls(classes.editCircle, classes.br)}
         data-dot="br"
         onMouseDown={onMouseDown}
+        onTouchStart={onMouseDown}
       />
     </>
   );
 };
 
-const mapDispatch = {};
+const mapStateToProps = ({ canvas }) => ({
+  canvas,
+});
 
-export default connect(null, mapDispatch)(EditSize);
+const mapDispatch = {
+  handleUpdateCanvas,
+};
+
+export default connect(mapStateToProps, mapDispatch)(EditSize);

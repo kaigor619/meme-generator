@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import paths from "types/paths";
 import Dropzone from "components/Dropzone";
 import { connect } from "react-redux";
-import { handleUpdateCanvas } from "reducers";
+import { handleUpdateCanvas, handleChangeActiveElement } from "reducers";
 import { Nav } from "react-bootstrap";
 import classes from "./AddBackground.module.scss";
 import { BACKGROUND_TYPES } from "types/constant";
@@ -26,8 +26,8 @@ const AddBackground = ({
   defaultType,
   memeBackgrounds,
   handleUpdateCanvas,
+  handleChangeActiveElement,
 }) => {
-  const [files, setFiles] = useState([]);
   const [type, setType] = useState(defaultType || backgroundTypes.localFiles);
   const history = useHistory();
   const { canvasAPI } = useContext(CanvasContext);
@@ -39,21 +39,36 @@ const AddBackground = ({
   }, [defaultType]);
 
   const handleUpdateFiles = (e) => {
-    console.log(e[0]);
     const img = new Image();
     const url = URL.createObjectURL(e[0]);
 
     img.onload = function () {
-      const updatedCanvas = {
-        ...canvas,
-        width: this.width,
-        height: this.height,
-        backgroundImage: url,
-        backgroundFile: e[0],
-      };
+      if (canvasAPI.isReady()) {
+        const { width, height } = canvasAPI.updateCanvasSize(
+          this.width,
+          this.height
+        );
+        const updatedCanvas = {
+          ...canvas,
+          backgroundImage: url,
+          backgroundFile: e[0],
+          width,
+          height,
+        };
+        handleUpdateCanvas(updatedCanvas);
+        canvasAPI.updateCanvas(updatedCanvas);
+      } else {
+        const updatedCanvas = {
+          ...canvas,
+          backgroundImage: url,
+          backgroundFile: e[0],
+          width: this.width,
+          height: this.height,
+        };
+        handleUpdateCanvas(updatedCanvas);
+        handleChangeActiveElement(canvas.id);
+      }
 
-      canvasAPI.updateCanvas(updatedCanvas);
-      handleUpdateCanvas(updatedCanvas);
       if (isCreateMeme) history.push(paths.create);
     };
     img.src = url;
@@ -62,18 +77,35 @@ const AddBackground = ({
   };
 
   const handleUpdateUrl = (item) => {
-    const updatedCanvas = {
-      ...canvas,
-      width: item.width,
-      height: item.height,
-      backgroundImage: item.url,
-      backgroundFile: null,
-    };
-
-    canvasAPI.updateCanvas(updatedCanvas);
-    handleUpdateCanvas(updatedCanvas);
-    onHide();
     if (isCreateMeme) history.push(paths.create);
+
+    if (canvasAPI.isReady()) {
+      const { width, height } = canvasAPI.updateCanvasSize(
+        item.width,
+        item.height
+      );
+      const updatedCanvas = {
+        ...canvas,
+        backgroundImage: item.url,
+        backgroundFile: null,
+        width,
+        height,
+      };
+      canvasAPI.updateCanvas(updatedCanvas);
+      handleUpdateCanvas(updatedCanvas);
+    } else {
+      const updatedCanvas = {
+        ...canvas,
+        backgroundImage: item.url,
+        backgroundFile: null,
+        width: item.width,
+        height: item.height,
+      };
+      handleUpdateCanvas(updatedCanvas);
+      handleChangeActiveElement(canvas.id);
+    }
+
+    onHide();
   };
 
   return (
@@ -121,6 +153,6 @@ const mapState = (state) => ({
   memeBackgrounds: state.memeBackgrounds,
 });
 
-const mapDispatch = { handleUpdateCanvas };
+const mapDispatch = { handleUpdateCanvas, handleChangeActiveElement };
 
 export default connect(mapState, mapDispatch)(AddBackground);

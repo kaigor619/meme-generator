@@ -12,6 +12,7 @@ header {
 .header_logo {
   width: 45px;
   height: 45px;
+  min-width: 40px;
   cursor: pointer;
 
   & > img {
@@ -43,6 +44,11 @@ header {
       &:hover {
         background-color: #0026ff;
       }
+
+      @media screen and (max-width: 600px) {
+        padding: 7px 25px;
+        font-size: 14px;
+      }
     }
 
     &.header_save {
@@ -65,10 +71,18 @@ header {
       background: none;
       font-size: 16px;
       color: #252525;
+
       & > img {
         width: 16px;
         height: auto;
         margin-right: 10px;
+      }
+
+      @media screen and (max-width: 600px) {
+        font-size: 14px;
+        & > img {
+          display: none;
+        }
       }
     }
   }

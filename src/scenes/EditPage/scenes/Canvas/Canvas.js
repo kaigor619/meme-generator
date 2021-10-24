@@ -2,6 +2,7 @@ import React, { Component, createRef } from "react";
 import { ELEMENT_TYPE } from "types/constant";
 import { TEXT_OPTIONS_TEMPLATE, CANVAS_CONFIG } from "types/elements";
 import { connect } from "react-redux";
+import { initialAPI } from "types/canvas";
 import {
   handleUpdateStyleElement,
   handleChangeActiveElement,
@@ -13,7 +14,6 @@ import store from "store";
 import Konva from "konva";
 import * as helper from "utils/helpers";
 import { FONTS } from "types/fonts";
-import * as fontHelper from "utils/font";
 import EditSize from "./components/EditSize";
 import { addFonts } from "utils/font";
 
@@ -109,7 +109,7 @@ class Canvas extends Component {
     });
 
     // textNode mousedown
-    textNode.on("mousedown", (e) => {
+    textNode.on("mousedown touchstart", (e) => {
       this.props.handleChangeActiveElement(element.id);
       // helper.toggleCanvasEdit(false);
       this._deleteTransformersExcept(element.id);
@@ -149,6 +149,8 @@ class Canvas extends Component {
 
     // textNode editing
     textNode.on("dblclick dbltap", (evt) => {
+      const xs = window.innerWidth <= 768;
+
       let count = 0;
       const { elements, activeId } = this.props;
 
@@ -170,7 +172,10 @@ class Canvas extends Component {
       // delete textarea
       function removeTextarea() {
         document.body.removeChild(textarea);
-        window.removeEventListener("click", handleOutsideClick);
+        window.removeEventListener(
+          xs ? "touchstart" : "click",
+          handleOutsideClick
+        );
         textNode.show();
         tr.show();
         tr.forceUpdate();
@@ -179,7 +184,8 @@ class Canvas extends Component {
 
       // outside click
       function handleOutsideClick(e) {
-        if (count && e.target !== textarea) {
+        const check = xs ? true : count;
+        if (Boolean(check) && e.target !== textarea) {
           textNode.text(textarea.innerText);
           removeTextarea();
         }
@@ -212,7 +218,7 @@ class Canvas extends Component {
         textarea.style.height =
           textarea.scrollHeight + textNode.fontSize() + "px";
       });
-      window.addEventListener("click", handleOutsideClick);
+      window.addEventListener(xs ? "touchstart" : "click", handleOutsideClick);
     });
 
     this.elementsState.push({
@@ -231,22 +237,50 @@ class Canvas extends Component {
     const { canvas } = store.getState();
     const layer = new Konva.Layer();
     const { background } = this;
+    const { isEditMeme } = this.props;
 
     if (canvas.backgroundImage) {
-      helper.createImage(
-        { src: canvas.backgroundImage || "", ...canvas },
-        (readyImage) => {
-          background.backgroundImage = readyImage;
-          layer.add(readyImage);
-          layer.batchDraw();
+      const imageObj = new Image();
+
+      imageObj.onload = () => {
+        const konvaImage = new Konva.Image({
+          x: canvas.x || 0,
+          y: canvas.y || 0,
+          image: imageObj,
+          width: isEditMeme ? canvas.width : imageObj.width,
+          height: isEditMeme ? canvas.height : imageObj.height,
+        });
+
+        background.backgroundImage = konvaImage;
+
+        if (!isEditMeme) {
+          const { width, height } = this.updateCanvasSize(
+            konvaImage.width(),
+            konvaImage.height(),
+            true
+          );
+
+          this.stage.setAttrs({
+            width,
+            height,
+          });
+          this.props.handleUpdateCanvas({
+            ...canvas,
+            width,
+            height,
+          });
         }
-      );
+        layer.add(konvaImage);
+        layer.batchDraw();
+      };
+      imageObj.crossOrigin = "Anonymous";
+      imageObj.src = canvas.backgroundImage;
     }
 
     const rect = helper.createRect(canvas);
     layer.add(rect);
 
-    layer.on("click", (e) => {
+    layer.on("click touchstart", (e) => {
       this.props.handleChangeActiveElement(canvas.id);
       this._deleteTransformersExcept();
     });
@@ -269,14 +303,43 @@ class Canvas extends Component {
 
   // init stage
   initStage() {
-    const { canvas, canvasOptions } = store.getState();
-    const config = helper.getCanvasConfig({
-      ...canvas,
-      ...canvasOptions,
-    });
+    const { canvas } = store.getState();
+
+    const newCanvas = { ...canvas };
+
+    const canvasContent = this.canvasContent.current;
+
+    if (canvas.width > canvasContent.clientWidth) {
+      newCanvas.width = canvasContent.clientWidth;
+    }
+
+    if (canvas.height > canvasContent.clientHeight) {
+      newCanvas.height = canvasContent.clientHeight;
+    }
+
+    const config = helper.getCanvasConfig(newCanvas);
+
     const stage = new Konva.Stage({ ...config, container: "canvas" });
 
     this.stage = stage;
+  }
+  // update Stage size
+  updateStageSize() {
+    const { canvas } = store.getState();
+
+    const newCanvas = { ...canvas };
+
+    const canvasContent = this.canvasContent.current;
+
+    if (!canvasContent) return;
+
+    const { width, height } = this.updateCanvasSize(
+      canvas.width,
+      canvas.height,
+      true
+    );
+
+    this.props.handleUpdateCanvas({ ...canvas, width, height });
   }
 
   addElement = (element) => {
@@ -293,6 +356,8 @@ class Canvas extends Component {
 
     helper.createImage({ src: backgroundImage, ...canvas }, (readyImage) => {
       const { width, height } = readyImage.size();
+      const konvaCanvas = document.querySelector(".konvajs-content");
+      const editRef = this.editRef.current;
 
       if (height > clientHeight || width > clientWidth) {
         const kxWidth = width / clientWidth;
@@ -310,10 +375,20 @@ class Canvas extends Component {
             width: newWidth,
             height: newHeight,
           };
+
           readyImage.size({ width: newWidth, height: newHeight });
-          this.stage.setAttrs(helper.getCanvasConfig(updatedCanvas));
+          this.stage.setAttrs({ width: newWidth, height: newHeight });
           this.props.handleUpdateCanvas(updatedCanvas);
+
+          const options = konvaCanvas.getBoundingClientRect();
+
+          editRef.style.width = options.width + "px";
+          editRef.style.height = options.height + "px";
         }
+      }
+
+      if (background.backgroundImage) {
+        background.backgroundImage?.destroy();
       }
 
       background.backgroundImage = readyImage;
@@ -328,6 +403,7 @@ class Canvas extends Component {
     const { canvas } = this.props;
     const canvasNode = this.canvasNode.current;
     const konvaCanvas = document.querySelector(".konvajs-content");
+    const editRef = this.editRef.current;
 
     if (isScale) {
       let { clientHeight, clientWidth } = this.canvasContent.current;
@@ -347,12 +423,7 @@ class Canvas extends Component {
       scale = Number(scale).toFixed(4);
       this.scale = scale;
       konvaCanvas.style.transform = `scale(${scale})`;
-
-      // width = width > clientWidth ? clientWidth : width;
-      // height = height > clientHeight ? clientHeight : height;
     }
-
-    const editRef = this.editRef.current;
 
     this.stage.setAttrs({ width, height });
 
@@ -365,31 +436,37 @@ class Canvas extends Component {
     }
     layer?.draw();
 
-    const updatedCanvas = {
-      ...canvas,
-      width,
-      height,
-    };
+    // const updatedCanvas = {
+    //   ...canvas,
+    //   width,
+    //   height,
+    // };
 
-    this.props.handleUpdateCanvas(updatedCanvas);
+    // this.props.handleUpdateCanvas(updatedCanvas);
 
     const options = konvaCanvas.getBoundingClientRect();
 
     editRef.style.width = options.width + "px";
     editRef.style.height = options.height + "px";
+
+    return { width, height };
   };
 
   // update canvas
   updateCanvas = (canvas) => {
     const { width, height, fill, backgroundImage } = canvas;
     const { background } = this;
+    const editRef = this.editRef.current;
+    const konvaCanvas = document.querySelector(".konvajs-content");
 
+    // this.updateCanvasSize(canvas.width, canvas.height, true);
     this.stage.setAttrs(helper.getCanvasConfig(canvas));
 
     if (!backgroundImage) {
       background.backgroundRect.setAttrs({ width, height, fill });
-      background.backgroundImage?.hide();
-      return background.layer.draw();
+      background.backgroundImage?.destroy();
+      background.backgroundImage = null;
+      background.layer.draw();
     }
 
     if (backgroundImage) {
@@ -403,6 +480,14 @@ class Canvas extends Component {
         background.layer.draw();
       }
     }
+
+    const options = konvaCanvas.getBoundingClientRect();
+
+    // editRef.style.width = options.width * this.scale + "px";
+    // editRef.style.height = options.height * this.scale + "px";
+    editRef.style.top = "50%";
+    editRef.style.left = "50%";
+    editRef.style.transform = "translate(-50%, -50%)";
   };
 
   // update element style
@@ -427,7 +512,6 @@ class Canvas extends Component {
   };
 
   // update element style
-  // updateElement = (id, style) => {
   updateElement = (updatedElement) => {
     const element = this.elementsState.find((x) => x.id === updatedElement.id);
     // Update font family
@@ -440,8 +524,6 @@ class Canvas extends Component {
           element.element.fontFamily(font.label);
           element.transformer.forceUpdate();
           element.layer.draw();
-
-          console.log(element.element.size());
         });
       }
     }
@@ -456,6 +538,7 @@ class Canvas extends Component {
 
     this.props.changeCanvasAPI({
       getAPI,
+      isReady: () => Boolean(this.stage),
       deleteTransformers: this._deleteTransformersExcept,
       addElement: this.addElement,
       updateCanvas: this.updateCanvas,
@@ -472,6 +555,15 @@ class Canvas extends Component {
     this._initCanvasBackground();
     this._initElements();
     this.initAPI();
+
+    this.updateStageSize();
+
+    window.addEventListener("resize", this.updateStageSize.bind(this));
+  }
+
+  componentWillUnmount() {
+    this.props.changeCanvasAPI(initialAPI);
+    window.removeEventListener("resize", this.updateStageSize);
   }
 
   componentDidUpdate(prevProps) {

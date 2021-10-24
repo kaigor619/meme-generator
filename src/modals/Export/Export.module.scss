@@ -28,7 +28,6 @@
 .downloadBtn {
   margin: 200px auto 50px auto;
   display: flex;
-  display: flex;
   align-items: center;
   justify-content: center;
   border: none;
@@ -45,6 +44,10 @@
     width: 24px;
     height: 24px;
     margin-right: 15px;
+  }
+
+  @media screen and (max-width: 600px) {
+    margin-top: 150px;
   }
 }
 

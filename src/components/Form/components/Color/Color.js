@@ -7,8 +7,14 @@ const Color = ({ name, value, className, disableInput, onChange }) => {
   const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
-    document.onclick = () => {
+    function listener() {
       setShowPicker(false);
+    }
+
+    window.addEventListener("mousedown", listener);
+
+    return () => {
+      window.removeEventListener("mousedown", listener);
     };
   }, []);
 

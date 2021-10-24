@@ -1,8 +1,11 @@
 .canvasWrapper {
   flex: 1 1 100%;
-
   position: relative;
   padding: 20px 40px;
+
+  @media screen and (max-width: 500px) {
+    padding: 20px 10px;
+  }
   & .konvajs-content {
     transform-origin: top left;
   }

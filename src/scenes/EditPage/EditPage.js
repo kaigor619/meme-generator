@@ -3,7 +3,11 @@ import { useParams } from "react-router-dom";
 import { Spinner } from "react-bootstrap";
 import { fetchGetMeme } from "api/memesAPI";
 import { connect } from "react-redux";
-import { handleFillState, handleClearState } from "reducers/index";
+import {
+  handleFillState,
+  handleClearState,
+  handleChangeActiveElement,
+} from "reducers/index";
 import Header from "components/Header";
 import Sidebar from "./scenes/Sidebar";
 import Canvas from "./scenes/Canvas";
@@ -15,7 +19,12 @@ import "react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css";
 import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
 import { Button } from "react-bootstrap";
 
-const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
+const Edit = ({
+  isReadyCanvas,
+  handleFillState,
+  handleClearState,
+  handleChangeActiveElement,
+}) => {
   const { memeId } = useParams();
   const [loading, setLoading] = useState(Boolean(memeId));
   const [error, setError] = useState(false);
@@ -32,6 +41,7 @@ const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
           const { canvas, elements } = data;
           const willUpdate = { canvas, elements };
           handleFillState(willUpdate);
+          handleChangeActiveElement(canvas.id);
         })
         .catch((err) => {
           setError(true);
@@ -65,17 +75,9 @@ const Edit = ({ isReadyCanvas, handleFillState, handleClearState }) => {
         <div className={classes.toolsBarWrapper}>
           <ToolsBar />
         </div>
-        <Canvas {...canvasAPI} />
+        <Canvas {...canvasAPI} isEditMeme={Boolean(memeId)} />
 
-        {xs ? (
-          <div className={classes.mobileSidebar}>
-            <Button>Edit</Button>
-          </div>
-        ) : (
-          <div className={classes.sidebarWrapper}>
-            <Sidebar />
-          </div>
-        )}
+        <Sidebar />
       </div>
     </div>
   );
@@ -88,6 +90,7 @@ const mapState = (state) => ({
 const mapDispatch = {
   handleFillState,
   handleClearState,
+  handleChangeActiveElement,
 };
 
 export default connect(mapState, mapDispatch)(Edit);

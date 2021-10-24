@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import CanvasContext from "contexts/canvas-context";
-
-const initialAPI = {
-  getAPI: () => {},
-  deleteTransformers: () => {},
-  addElement: () => {},
-  updateCanvas: () => {},
-  updateElement: () => {},
-};
+import { initialAPI } from "types/canvas";
 
 const CanvasProvider = ({ children }) => {
   const [canvasAPI, setCanvasAPI] = useState(initialAPI);
