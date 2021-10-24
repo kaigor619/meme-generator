@@ -2,7 +2,6 @@ import { FONTS } from "types/fonts";
 
 export const addFonts = (fontsNames, callback) => {
   if (fontsNames.length) {
-    let counter = 0;
     const head = document.querySelector("head");
     const links = document.querySelectorAll("link[data-font]");
 

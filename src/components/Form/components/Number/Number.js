@@ -15,7 +15,11 @@ const Number = ({
   return (
     <div className={classes.field}>
       <label htmlFor={name} className={classes.fieldLabel}>
-        {icon ? <img src={icon} /> : (label && <span>{label}</span>) || null}
+        {icon ? (
+          <img src={icon} alt="icon" />
+        ) : (
+          (label && <span>{label}</span>) || null
+        )}
       </label>
       <div className={classes.fieldInput}>
         <Form.Control

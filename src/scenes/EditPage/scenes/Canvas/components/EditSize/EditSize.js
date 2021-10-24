@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
+import { useBreakpoints } from "react-breakpoints-hook";
 import cls from "classnames";
 import { setElementCoords, toPx } from "utils/helpers";
 import classes from "./EditSize.module.scss";

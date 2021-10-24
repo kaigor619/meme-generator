@@ -3,7 +3,7 @@ import { Number, Color } from "components/Form";
 import { connect } from "react-redux";
 import { handleUpdateCanvas } from "reducers";
 import SidebarSection from "components/SidebarSection";
-import { Button, Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import * as helper from "utils/helpers";
 import AddBackground from "modals/AddBackground";
 import CanvasContext from "contexts/canvas-context";

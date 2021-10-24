@@ -2,16 +2,14 @@ import React, { useMemo, useContext } from "react";
 import { connect } from "react-redux";
 import { handleAddElement, handleChangeActiveElement } from "reducers";
 import CanvasContext from "contexts/canvas-context";
-import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
 import * as helpers from "utils/helpers";
-import store from "store";
 
 import classes from "./ToolsBar.module.scss";
 
 import textIcon from "./images/text.svg";
-import imageIcon from "./images/image.svg";
-import uploadIcon from "./images/upload.svg";
-import backgroundIcon from "./images/background.svg";
+// import imageIcon from "./images/image.svg";
+// import uploadIcon from "./images/upload.svg";
+// import backgroundIcon from "./images/background.svg";
 
 const ToolBarItem = ({ label, icon, action }) => (
   <li className={classes.toolsBarItem} onClick={action}>

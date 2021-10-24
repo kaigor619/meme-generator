@@ -17,7 +17,7 @@ const ButtonsCheck = ({ textStyle, options, onChange }) => {
 
       setSelectedOptions(arr);
     }
-  }, [textStyle]);
+  }, [textStyle, options]);
 
   const handleChange = (item) => {
     const { value, option } = item;

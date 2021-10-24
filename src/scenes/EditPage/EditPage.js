@@ -16,8 +16,6 @@ import OfflineError from "components/OfflineError";
 import CanvasContext from "contexts/canvas-context";
 import classes from "./EditPage.module.scss";
 import "react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css";
-import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
-import { Button } from "react-bootstrap";
 
 const Edit = ({
   isReadyCanvas,
@@ -29,10 +27,6 @@ const Edit = ({
   const [loading, setLoading] = useState(Boolean(memeId));
   const [error, setError] = useState(false);
   const canvasAPI = useContext(CanvasContext);
-
-  const { xs } = useBreakpoints({
-    xs: { min: 0, max: 768 },
-  });
 
   useEffect(() => {
     if (memeId) {

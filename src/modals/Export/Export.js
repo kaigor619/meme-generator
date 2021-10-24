@@ -1,13 +1,9 @@
 import React, { useState, useContext } from "react";
 import Modal from "components/Modal";
-import { Form, Button } from "react-bootstrap";
-import paths from "types/paths";
-import Dropzone from "components/Dropzone";
+import { Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import { handleUpdateCanvas } from "reducers";
-import { Nav } from "react-bootstrap";
 import classes from "./Export.module.scss";
-import { useDispatch, useSelector } from "react-redux";
 import store from "store";
 import downloadIcon from "assets/images/download1.svg";
 import { fetchCreateMeme } from "api/memesAPI";

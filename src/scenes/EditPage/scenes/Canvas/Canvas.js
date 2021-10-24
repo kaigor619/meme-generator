@@ -1,6 +1,5 @@
 import React, { Component, createRef } from "react";
 import { ELEMENT_TYPE } from "types/constant";
-import { TEXT_OPTIONS_TEMPLATE, CANVAS_CONFIG } from "types/elements";
 import { connect } from "react-redux";
 import { initialAPI } from "types/canvas";
 import {
@@ -327,8 +326,6 @@ class Canvas extends Component {
   updateStageSize() {
     const { canvas } = store.getState();
 
-    const newCanvas = { ...canvas };
-
     const canvasContent = this.canvasContent.current;
 
     if (!canvasContent) return;
@@ -400,8 +397,6 @@ class Canvas extends Component {
   // update canvas size
   updateCanvasSize = (width, height, isScale) => {
     const { backgroundImage, backgroundRect, layer } = this.background;
-    const { canvas } = this.props;
-    const canvasNode = this.canvasNode.current;
     const konvaCanvas = document.querySelector(".konvajs-content");
     const editRef = this.editRef.current;
 
@@ -436,14 +431,6 @@ class Canvas extends Component {
     }
     layer?.draw();
 
-    // const updatedCanvas = {
-    //   ...canvas,
-    //   width,
-    //   height,
-    // };
-
-    // this.props.handleUpdateCanvas(updatedCanvas);
-
     const options = konvaCanvas.getBoundingClientRect();
 
     editRef.style.width = options.width + "px";
@@ -457,9 +444,7 @@ class Canvas extends Component {
     const { width, height, fill, backgroundImage } = canvas;
     const { background } = this;
     const editRef = this.editRef.current;
-    const konvaCanvas = document.querySelector(".konvajs-content");
 
-    // this.updateCanvasSize(canvas.width, canvas.height, true);
     this.stage.setAttrs(helper.getCanvasConfig(canvas));
 
     if (!backgroundImage) {
@@ -481,8 +466,7 @@ class Canvas extends Component {
       }
     }
 
-    const options = konvaCanvas.getBoundingClientRect();
-
+    // const options = konvaCanvas.getBoundingClientRect();
     // editRef.style.width = options.width * this.scale + "px";
     // editRef.style.height = options.height * this.scale + "px";
     editRef.style.top = "50%";
@@ -491,7 +475,6 @@ class Canvas extends Component {
   };
 
   // update element style
-  // updateElement = (id, style) => {
   deleteElement = (id) => {
     const index = this.elementsState.findIndex((x) => x.id === id);
     const element = this.elementsState.find((x) => x.id === id);

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { handleChangeActiveElement } from "reducers";
 import { useHistory } from "react-router-dom";
 import "./Header.scss";
@@ -40,7 +40,6 @@ const Header = () => {
           <button className="header_preview" onClick={handlePreviewCanvas}>
             <img src={eye} alt="Eye" /> Preview
           </button>
-          {/*<button className="header_save">Save</button> */}
           <button className="header_export" onClick={() => setIsExport(true)}>
             Export
           </button>

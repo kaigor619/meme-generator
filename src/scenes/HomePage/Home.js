@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Container, Row, Column } from "react-bootstrap";
+import { Container, Row } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import paths from "types/paths";
 import { fetchGetMemes } from "api/memesAPI";
@@ -12,7 +12,7 @@ import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
 import "./Home.scss";
 import Slider from "react-slick";
-import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
+import { useBreakpoints } from "react-breakpoints-hook";
 
 function App() {
   const [images, setImages] = useState(null);
@@ -20,7 +20,7 @@ function App() {
   const [openImage, setOpenImage] = useState("");
   const [fileType, setFileType] = useState(BACKGROUND_TYPES.localFiles);
   const history = useHistory();
-  const { xs, sm, md, lg } = useBreakpoints({
+  const { xs, sm, md } = useBreakpoints({
     xs: { min: 0, max: 600 },
     sm: { min: 601, max: 960 },
     md: { min: 961, max: 1400 },
@@ -50,7 +50,7 @@ function App() {
       slidesToScroll,
       vertical: false,
     };
-  }, [xs, sm, md, lg]);
+  }, [xs, sm, md]);
 
   useEffect(() => {
     fetchGetMemes().then((data) => {

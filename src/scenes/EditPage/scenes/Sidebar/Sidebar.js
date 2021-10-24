@@ -4,8 +4,7 @@ import CanvasOptions from "./components/CanvasOptions";
 import Modal from "components/Modal";
 import { connect } from "react-redux";
 import { ELEMENT_TYPE } from "types/constant";
-import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
-import { Button } from "react-bootstrap";
+import { useBreakpoints } from "react-breakpoints-hook";
 import { ReactComponent as EditIcon } from "assets/images/edit.svg";
 
 import classes from "./Sidebar.module.scss";

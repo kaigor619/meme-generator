@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import {
   Number,
   Select,
@@ -7,7 +7,7 @@ import {
   Color,
 } from "components/Form";
 import SidebarSection from "components/SidebarSection";
-import { Form, Button } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import { connect } from "react-redux";
 import {
   handleUpdateElement,

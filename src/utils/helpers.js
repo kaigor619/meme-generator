@@ -237,7 +237,7 @@ export const createTransformer = (textNode) => {
  * @returns { Boolean }
  */
 export const addTextElement = () => {
-  const { elements, canvas } = store.getState();
+  const { elements } = store.getState();
 
   const txtElements = elements.filter((x) => x.type === ELEMENT_TYPE.text);
 

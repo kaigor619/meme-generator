@@ -1,5 +1,5 @@
-import { Modal, Button } from "react-bootstrap";
-import { useBreakpoints, useCurrentWidth } from "react-breakpoints-hook";
+import { Modal } from "react-bootstrap";
+import { useBreakpoints } from "react-breakpoints-hook";
 import closeIcon from "assets/images/close2.png";
 import classes from "./Modal.module.scss";
 

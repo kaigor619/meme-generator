@@ -1,8 +1,3 @@
-import { ELEMENT_TYPE } from "types/constant";
-import { TEXT_OPTIONS_TEMPLATE } from "types/elements";
-
-import canvasBackground from "assets/images/canvas-background.jpg";
-
 export const types = {
   CHANGE_ACTIVE_ELEMENT: "CHANGE_ACTIVE_ELEMENT",
   ADD_ELEMENT: "ADD_ELEMENT",
@@ -131,7 +126,6 @@ const reducer = (state = initialState, action) => {
         activeId: "",
         stage: null,
         modalId: "",
-        isReadyCanvas: false,
         elements: [],
       };
     }
